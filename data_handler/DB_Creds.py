@@ -5,7 +5,7 @@ class DB_Creds:
     username, password, account, warehouse, database, schema = None, None, None, None, None, None
 
     def __init__(self):
-        with open('../db_connection_info.json') as in_fh:
+        with open('db_connection_info.json') as in_fh:
             info_file = json.load(in_fh)
             self.username = info_file['db_connection']['username']
             self.password = info_file['db_connection']['password']

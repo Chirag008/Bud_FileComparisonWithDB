@@ -4,7 +4,7 @@ from scripts.Comparator import Comparator
 
 
 def start_execution():
-    with open('../files_to_test.json') as in_fh:
+    with open('files_to_test.json') as in_fh:
         files_to_test = json.load(in_fh)
         for execution_info in files_to_test['files']:
             file_path = execution_info['path']
