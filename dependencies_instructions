@@ -1,0 +1,7 @@
+1. First install the following dependency (change the python version in the last). Below dependency is for python 3.8
+pip install -r https://raw.githubusercontent.com/snowflakedb/snowflake-connector-python/v2.5.1/tested_requirements/requirements_38.req
+s
+
+
+2. Install snowflake connector dependency
+pip install snowflake-connector-python==2.5.1

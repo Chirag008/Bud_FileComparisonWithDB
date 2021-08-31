@@ -1,0 +1,11 @@
+{
+  "db_connection":
+    {
+      "username" : "ChiragBansal",
+      "password" : "Chirag@1992",
+      "account" : "sa04161.east-us-2.azure",
+      "warehouse" : "COMPUTE_WH",
+      "database" : "DEMO_DB",
+      "schema" : "PUBLIC"
+    }
+}

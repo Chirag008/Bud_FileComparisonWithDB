@@ -1,0 +1,213 @@
+<html>
+  <head>
+    <title>Automation Report</title>
+    <style type="text/css">
+    	.table-header{
+      	background-color:silver;
+      }
+
+      .page{
+      	background-color: cadetblue;
+      }
+
+      td.pass{
+      	color:green;
+        font-weight: bold;
+      }
+
+      td.fail{
+      	color:darkred;
+        font-weight: bold;
+      }
+
+      td.error{
+      	color:goldenrod;
+        font-weight: bold;
+      }
+
+      tr {
+      	text-align: center;
+        font-family: verdana,serif;
+      }
+
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      .summary-table {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      tr.summary-table-header{
+        background-color: goldenrod;
+        font-family: Verdana,serif;
+      }
+      td.summary-all{
+        font-weight: bold;
+        background-color: mediumslateblue;
+      }
+      td.summary-pass{
+        font-weight: bold;
+        background-color: darkgreen;
+      }
+      td.summary-fail{
+        font-weight: bold;
+        background-color: darkred;
+      }
+      td.summary-error{
+          font-weight: bold;
+          background-color: darkgoldenrod;
+      }
+
+      .scenario-filter-table{
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      td.radio{
+        padding: 10px;
+        border: none;
+        border-collapse: collapse;
+      }
+
+      .radio-big {
+        width: 1.5em; height: 1.5em;
+      }
+
+      td.meta-header{
+          font-weight: bold;
+          background-color: #A0655F;
+          padding: 2px;
+      }
+
+      td.meta-data{
+          background-color: #9FA05F;
+          padding: 2px;
+      }
+
+      pre{
+          font-family: Verdana,serif;
+          font-size: medium;
+      }
+
+    </style>
+  </head>
+
+  <body class="page">
+    <br><br>
+    <div style="text-align: center; font-family: Verdana,serif; color:#a71d5d ">
+      <h2><$$REPORT-NAME$$></h2>
+    </div>
+    <div>
+      <br>
+      <div>
+        <table id="report-meta-data">
+            <tr id="meta-data-execution-time">
+               <td class="meta-header">Report Execution Time </td>
+               <td class="meta-data"><$$REPORT-EXECUTION-TIME$$></td>
+            </tr>
+            <tr id="meta-data-env">
+                <td class="meta-header">Environment </td>
+                <td class="meta-data"><$$ENV$$></td>
+            </tr>
+        </table>
+    </div>
+    <br><br><br><br><br>
+    <div>
+      <table class="summary-table" style="width: 50%; alignment: center">
+        <tr class="summary-table-header">
+          <th>Total Scenarios</th>
+          <th>Total Passed</th>
+          <th>Total Failed</th>
+          <th>Total Error</th>
+        </tr>
+        <$$SUMMARY-DATA$$>
+      </table>
+      </div>
+    <br><br><br><br>
+
+      <div>
+      <table class='scenario-filter-table' style="width: 50%">
+        <tr>
+          <td class="radio" style="width:34%">
+            <label class="radio-inline" style="color: darkblue; font-weight: bold;">
+              <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()" checked>All
+            </label>
+          </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: darkgreen; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Pass
+           </label>
+         </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: darkred; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Fail
+           </label>
+         </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: goldenrod; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Error
+           </label>
+         </td>
+        </tr>
+      </table>
+      </div>
+
+        <br><br><br>
+
+    <table style="width:100%;table-layout: fixed" id="report-data">
+      <tr class="table-header">
+        <th style="width:5%">Scenario No.</th>
+      	<th style="width:20%">Test Scenario</th>
+      	<th style="width:30%">Expected Output</th>
+        <th style="width:30%">Actual Output</th>
+        <th style="width:5%">Status</th>
+        <th style="width:10%">Comments</th>
+     </tr>
+     <$$DATA$$>
+    </table>
+    </div>
+
+    <script>
+      function filter_scenarios() {
+        const radios = document.getElementsByName("scenario-filter");
+        const data_table = document.getElementById("report-data");
+        const rows = data_table.getElementsByTagName("tr");
+        if(radios[0].checked){
+          for(let i=1; i<rows.length; i++){
+              rows[i].style.display = "table-row";
+          }
+        }else if(radios[1].checked){
+          for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="pass") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }else if(radios[2].checked){
+          for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="fail") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }else{
+            for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="error") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }
+
+      }
+    </script>
+  </body>
+
+</html>

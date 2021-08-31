@@ -1,0 +1,499 @@
+<html>
+  <head>
+    <title>Automation Report</title>
+    <style type="text/css">
+    	.table-header{
+      	background-color:silver;
+      }
+
+      .page{
+      	background-color: cadetblue;
+      }
+
+      td.pass{
+      	color:green;
+        font-weight: bold;
+      }
+
+      td.fail{
+      	color:darkred;
+        font-weight: bold;
+      }
+
+      td.error{
+      	color:goldenrod;
+        font-weight: bold;
+      }
+
+      tr {
+      	text-align: center;
+        font-family: verdana,serif;
+      }
+
+      td {
+        padding: 10px;
+        border: 1px solid black;
+        border-collapse: collapse;
+      }
+
+      .summary-table {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      tr.summary-table-header{
+        background-color: goldenrod;
+        font-family: Verdana,serif;
+      }
+      td.summary-all{
+        font-weight: bold;
+        background-color: mediumslateblue;
+      }
+      td.summary-pass{
+        font-weight: bold;
+        background-color: darkgreen;
+      }
+      td.summary-fail{
+        font-weight: bold;
+        background-color: darkred;
+      }
+      td.summary-error{
+          font-weight: bold;
+          background-color: darkgoldenrod;
+      }
+
+      .scenario-filter-table{
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      td.radio{
+        padding: 10px;
+        border: none;
+        border-collapse: collapse;
+      }
+
+      .radio-big {
+        width: 1.5em; height: 1.5em;
+      }
+
+      td.meta-header{
+          font-weight: bold;
+          background-color: #A0655F;
+          padding: 2px;
+      }
+
+      td.meta-data{
+          background-color: #9FA05F;
+          padding: 2px;
+      }
+
+      pre{
+          font-family: Verdana,serif;
+          font-size: medium;
+      }
+
+    </style>
+  </head>
+
+  <body class="page">
+    <br><br>
+    <div style="text-align: center; font-family: Verdana,serif; color:#a71d5d ">
+      <h2>DEMO Table Comparison</h2>
+    </div>
+    <div>
+      <br>
+      <div>
+        <table id="report-meta-data">
+            <tr id="meta-data-execution-time">
+               <td class="meta-header">Report Execution Time </td>
+               <td class="meta-data">2021-08-31 18:46:51</td>
+            </tr>
+            <tr id="meta-data-env">
+                <td class="meta-header">Environment </td>
+                <td class="meta-data">DEV</td>
+            </tr>
+        </table>
+    </div>
+    <br><br><br><br><br>
+    <div>
+      <table class="summary-table" style="width: 50%; alignment: center">
+        <tr class="summary-table-header">
+          <th>Total Scenarios</th>
+          <th>Total Passed</th>
+          <th>Total Failed</th>
+          <th>Total Error</th>
+        </tr>
+        
+<tr> 
+<td class="summary-all">31</td>
+<td class="summary-pass">26</td>
+<td class="summary-fail">5</td>
+<td class="summary-error">0</td>
+</tr>
+
+      </table>
+      </div>
+    <br><br><br><br>
+
+      <div>
+      <table class='scenario-filter-table' style="width: 50%">
+        <tr>
+          <td class="radio" style="width:34%">
+            <label class="radio-inline" style="color: darkblue; font-weight: bold;">
+              <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()" checked>All
+            </label>
+          </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: darkgreen; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Pass
+           </label>
+         </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: darkred; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Fail
+           </label>
+         </td>
+         <td class="radio" style="width:22%">
+           <label class="radio-inline" style="color: goldenrod; font-weight: bold;">
+                <input type="radio" name="scenario-filter" class="radio-big" onchange="filter_scenarios()">Error
+           </label>
+         </td>
+        </tr>
+      </table>
+      </div>
+
+        <br><br><br>
+
+    <table style="width:100%;table-layout: fixed" id="report-data">
+      <tr class="table-header">
+        <th style="width:5%">Scenario No.</th>
+      	<th style="width:20%">Test Scenario</th>
+      	<th style="width:30%">Expected Output</th>
+        <th style="width:30%">Actual Output</th>
+        <th style="width:5%">Status</th>
+        <th style="width:10%">Comments</th>
+     </tr>
+     
+<tr class="pass">
+<td>1</td>
+<td>Validate number of columns same in data file and table</td>
+<td>Number of columns in DB table - 74 </td>
+<td>Number of columns in DB table - 74 </td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>2</td>
+<td>Validate column names in data file and db table</td>
+<td>['ADDRESSTYPE', 'ALTEMAIL', 'BENEFICIARYPERCENT', 'BIRTHDATE', 'CARRIERROUTE', 'CITY', 'COUNTRY', 'COUNTRYCODE', 'CTREXEMPT', 'DEATHDATE', 'ECOACODE', 'EFFECTIVEDATE', 'EMAIL', 'EMPLOYERNAME', 'EXPIRATIONDATE', 'EXTRAADDRESS', 'FIRST', 'HOMEPHONE', 'IDENTDOCFLAG1', 'IDENTDOCFLAG2', 'IDENTDOCFLAG3', 'IDENTIDDESCRIPTION1', 'IDENTIDDESCRIPTION2', 'IDENTIDDESCRIPTION3', 'IDENTIDEXPIREDATE1', 'IDENTIDEXPIREDATE2', 'IDENTIDEXPIREDATE3', 'IDENTIDISSUEDATE1', 'IDENTIDISSUEDATE2', 'IDENTIDISSUEDATE3', 'IDENTIDNUMBER1', 'IDENTIDNUMBER2', 'IDENTIDNUMBER3', 'IDENTIDTYPE1', 'IDENTIDTYPE2', 'IDENTIDTYPE3', 'IDENTIDVERIFYDATE1', 'IDENTIDVERIFYDATE2', 'IDENTIDVERIFYDATE3', 'IRSCORRECTION', 'LAST', 'LASTADDRVERIFDATE', 'LASTFMDATE', 'LOCATOR', 'MAILOVERRIDE', 'MIDDLE', 'MOBILEPHONE', 'MOTHERSMAIDENNAME', 'OCCUPATION', 'ORDINAL', 'PAGERNUMBER', 'PARENTACCOUNT', 'SSN', 'SSNCERTIFICATION', 'SSNOVERRIDE', 'SSNTYPE', 'STATE', 'STREET', 'SUBTYPE', 'SUFFIX', 'TITLE', 'TYPE', 'USERAMOUNT1', 'USERAMOUNT2', 'USERCHAR1', 'USERCHAR2', 'USERCHAR3', 'USERCHAR4', 'USERDATE1', 'USERDATE2', 'USPERSONFLAG', 'WORKPHONE', 'WORKPHONEEXTENSION', 'ZIPCODE'] </td>
+<td>['ADDRESSTYPE', 'ALTEMAIL', 'BENEFICIARYPERCENT', 'BIRTHDATE', 'CARRIERROUTE', 'CITY', 'COUNTRY', 'COUNTRYCODE', 'CTREXEMPT', 'DEATHDATE', 'ECOACODE', 'EFFECTIVEDATE', 'EMAIL', 'EMPLOYERNAME', 'EXPIRATIONDATE', 'EXTRAADDRESS', 'FIRST', 'HOMEPHONE', 'IDENTDOCFLAG1', 'IDENTDOCFLAG2', 'IDENTDOCFLAG3', 'IDENTIDDESCRIPTION1', 'IDENTIDDESCRIPTION2', 'IDENTIDDESCRIPTION3', 'IDENTIDEXPIREDATE1', 'IDENTIDEXPIREDATE2', 'IDENTIDEXPIREDATE3', 'IDENTIDISSUEDATE1', 'IDENTIDISSUEDATE2', 'IDENTIDISSUEDATE3', 'IDENTIDNUMBER1', 'IDENTIDNUMBER2', 'IDENTIDNUMBER3', 'IDENTIDTYPE1', 'IDENTIDTYPE2', 'IDENTIDTYPE3', 'IDENTIDVERIFYDATE1', 'IDENTIDVERIFYDATE2', 'IDENTIDVERIFYDATE3', 'IRSCORRECTION', 'LAST', 'LASTADDRVERIFDATE', 'LASTFMDATE', 'LOCATOR', 'MAILOVERRIDE', 'MIDDLE', 'MOBILEPHONE', 'MOTHERSMAIDENNAME', 'OCCUPATION', 'ORDINAL', 'PAGERNUMBER', 'PARENTACCOUNT', 'SSN', 'SSNCERTIFICATION', 'SSNOVERRIDE', 'SSNTYPE', 'STATE', 'STREET', 'SUBTYPE', 'SUFFIX', 'TITLE', 'TYPE', 'USERAMOUNT1', 'USERAMOUNT2', 'USERCHAR1', 'USERCHAR2', 'USERCHAR3', 'USERCHAR4', 'USERDATE1', 'USERDATE2', 'USPERSONFLAG', 'WORKPHONE', 'WORKPHONEEXTENSION', 'ZIPCODE'] </td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>3</td>
+<td>Validating file data Row 1</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>4</td>
+<td>Validating file data Row 2</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>5</td>
+<td>Validating file data Row 3</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>6</td>
+<td>Validating file data Row 4</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="fail">
+<td>7</td>
+<td>Validating file data Row 5</td>
+<td>Available in <DB> </DB></td>
+<td>Not found in DB - {'PARENTACCOUNT': 'CU01100005', 'ORDINAL': '0', 'TYPE': '0', 'SUBTYPE': '', 'MAILOVERRIDE': '', 'SSNOVERRIDE': '', 'SSNCERTIFICATION': '', 'SSNTYPE': '', 'EFFECTIVEDATE': '08-04-2016', 'EXPIRATIONDATE': '', 'BIRTHDATE': '1977-12-09', 'TITLE': '', 'FIRST': 'Hyland', 'MIDDLE': '', 'LAST': 'Mevis', 'SUFFIX': '', 'EXTRAADDRESS': '', 'STREET': '1586 COLLING RD W', 'CITY': 'Mingo', 'STATE': 'IA', 'ZIPCODE': '50168', 'HOMEPHONE': '594-967-7749', 'SSN': '130785194', 'WORKPHONE': '407-679-5269', 'LASTFMDATE': '', 'CARRIERROUTE': '', 'ADDRESSTYPE': '0', 'BENEFICIARYPERCENT': '', 'IRSCORRECTION': '', 'WORKPHONEEXTENSION': '', 'CTREXEMPT': '', 'DEATHDATE': '', 'ECOACODE': '', 'COUNTRY': '', 'COUNTRYCODE': 'US', 'EMAIL': 'HMEVIS@gmail.com', 'MOTHERSMAIDENNAME': '', 'EMPLOYERNAME': 'Dr Pepper Snapple Group', 'ALTEMAIL': 'HMEVIS@aol.com', 'LOCATOR': '0', 'MOBILEPHONE': '278-262-3062', 'PAGERNUMBER': '', 'USPERSONFLAG': '', 'IDENTDOCFLAG1': '', 'IDENTDOCFLAG2': '', 'IDENTDOCFLAG3': '', 'IDENTIDTYPE1': '', 'IDENTIDTYPE2': '', 'IDENTIDTYPE3': '', 'IDENTIDDESCRIPTION1': '', 'IDENTIDDESCRIPTION2': '', 'IDENTIDDESCRIPTION3': '', 'IDENTIDNUMBER1': '', 'IDENTIDNUMBER2': '', 'IDENTIDNUMBER3': '', 'IDENTIDISSUEDATE1': '', 'IDENTIDISSUEDATE2': '', 'IDENTIDISSUEDATE3': '', 'IDENTIDEXPIREDATE1': '', 'IDENTIDEXPIREDATE2': '', 'IDENTIDEXPIREDATE3': '', 'IDENTIDVERIFYDATE1': '', 'IDENTIDVERIFYDATE2': '', 'IDENTIDVERIFYDATE3': '', 'OCCUPATION': 'Author', 'USERCHAR1': '', 'USERCHAR2': '', 'USERCHAR3': '', 'USERCHAR4': '', 'USERAMOUNT1': '', 'USERAMOUNT2': '', 'USERDATE1': '', 'USERDATE2': '', 'LASTADDRVERIFDATE': ''} </td>
+<td class="fail">fail</td>
+<td></td>
+</tr>
+
+<tr class="fail">
+<td>8</td>
+<td>Validating file data Row 6</td>
+<td>Available in <DB> </DB></td>
+<td>Not found in DB - {'PARENTACCOUNT': 'CU01100006', 'ORDINAL': '0', 'TYPE': '0', 'SUBTYPE': '', 'MAILOVERRIDE': '', 'SSNOVERRIDE': '', 'SSNCERTIFICATION': '', 'SSNTYPE': '', 'EFFECTIVEDATE': '2019-12-04', 'EXPIRATIONDATE': '', 'BIRTHDATE': '08-02-1993', 'TITLE': '', 'FIRST': 'Lilionna', 'MIDDLE': '', 'LAST': 'Occhuizzo', 'SUFFIX': '', 'EXTRAADDRESS': '', 'STREET': '8405 PRINCETON PL', 'CITY': 'Atoka', 'STATE': 'TN', 'ZIPCODE': '38004', 'HOMEPHONE': '138-535-7882', 'SSN': '955637484', 'WORKPHONE': '700-537-3880', 'LASTFMDATE': '', 'CARRIERROUTE': '', 'ADDRESSTYPE': '0', 'BENEFICIARYPERCENT': '', 'IRSCORRECTION': '', 'WORKPHONEEXTENSION': '', 'CTREXEMPT': '', 'DEATHDATE': '', 'ECOACODE': '', 'COUNTRY': '', 'COUNTRYCODE': 'US', 'EMAIL': 'LOCCHUIZZO@gmail.com', 'MOTHERSMAIDENNAME': '', 'EMPLOYERNAME': 'Crown Automotive', 'ALTEMAIL': ' INC', 'LOCATOR': 'LOCCHUIZZO@gmail.com', 'MOBILEPHONE': '0', 'PAGERNUMBER': '168-439-7073', 'USPERSONFLAG': '', 'IDENTDOCFLAG1': '', 'IDENTDOCFLAG2': '', 'IDENTDOCFLAG3': '', 'IDENTIDTYPE1': '', 'IDENTIDTYPE2': '', 'IDENTIDTYPE3': '', 'IDENTIDDESCRIPTION1': '', 'IDENTIDDESCRIPTION2': '', 'IDENTIDDESCRIPTION3': '', 'IDENTIDNUMBER1': '', 'IDENTIDNUMBER2': '', 'IDENTIDNUMBER3': '', 'IDENTIDISSUEDATE1': '', 'IDENTIDISSUEDATE2': '', 'IDENTIDISSUEDATE3': '', 'IDENTIDEXPIREDATE1': '', 'IDENTIDEXPIREDATE2': '', 'IDENTIDEXPIREDATE3': '', 'IDENTIDVERIFYDATE1': '', 'IDENTIDVERIFYDATE2': '', 'IDENTIDVERIFYDATE3': '', 'OCCUPATION': '', 'USERCHAR1': 'Insurance Adjuster', 'USERCHAR2': '', 'USERCHAR3': '', 'USERCHAR4': '', 'USERAMOUNT1': '', 'USERAMOUNT2': '', 'USERDATE1': '', 'USERDATE2': '', 'LASTADDRVERIFDATE': ''} </td>
+<td class="fail">fail</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>9</td>
+<td>Validating file data Row 7</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>10</td>
+<td>Validating file data Row 8</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="fail">
+<td>11</td>
+<td>Validating file data Row 9</td>
+<td>Available in <DB> </DB></td>
+<td>Not found in DB - {'PARENTACCOUNT': 'CU01100009', 'ORDINAL': '0', 'TYPE': '0', 'SUBTYPE': '', 'MAILOVERRIDE': '', 'SSNOVERRIDE': '', 'SSNCERTIFICATION': '', 'SSNTYPE': '', 'EFFECTIVEDATE': '2019-0-05', 'EXPIRATIONDATE': '', 'BIRTHDATE': '1978-02-09', 'TITLE': '', 'FIRST': 'Lyden', 'MIDDLE': '', 'LAST': 'Flicker', 'SUFFIX': '', 'EXTRAADDRESS': '', 'STREET': '7715 BASSWOOD LN', 'CITY': 'Miracle', 'STATE': 'KY', 'ZIPCODE': '40856', 'HOMEPHONE': '350-818-4603', 'SSN': '241251518', 'WORKPHONE': '877-880-3237', 'LASTFMDATE': '', 'CARRIERROUTE': '', 'ADDRESSTYPE': '0', 'BENEFICIARYPERCENT': '', 'IRSCORRECTION': '', 'WORKPHONEEXTENSION': '', 'CTREXEMPT': '', 'DEATHDATE': '', 'ECOACODE': '', 'COUNTRY': '', 'COUNTRYCODE': 'US', 'EMAIL': 'LFLICKER@outlook.com', 'MOTHERSMAIDENNAME': '', 'EMPLOYERNAME': 'In-N-Out Burger', 'ALTEMAIL': 'LFLICKER@yahoo.com', 'LOCATOR': '0', 'MOBILEPHONE': '770-500-4712', 'PAGERNUMBER': '', 'USPERSONFLAG': '', 'IDENTDOCFLAG1': '', 'IDENTDOCFLAG2': '', 'IDENTDOCFLAG3': '', 'IDENTIDTYPE1': '', 'IDENTIDTYPE2': '', 'IDENTIDTYPE3': '', 'IDENTIDDESCRIPTION1': '', 'IDENTIDDESCRIPTION2': '', 'IDENTIDDESCRIPTION3': '', 'IDENTIDNUMBER1': '', 'IDENTIDNUMBER2': '', 'IDENTIDNUMBER3': '', 'IDENTIDISSUEDATE1': '', 'IDENTIDISSUEDATE2': '', 'IDENTIDISSUEDATE3': '', 'IDENTIDEXPIREDATE1': '', 'IDENTIDEXPIREDATE2': '', 'IDENTIDEXPIREDATE3': '', 'IDENTIDVERIFYDATE1': '', 'IDENTIDVERIFYDATE2': '', 'IDENTIDVERIFYDATE3': '', 'OCCUPATION': 'Caretaker', 'USERCHAR1': '', 'USERCHAR2': '', 'USERCHAR3': '', 'USERCHAR4': '', 'USERAMOUNT1': '', 'USERAMOUNT2': '', 'USERDATE1': '', 'USERDATE2': '', 'LASTADDRVERIFDATE': ''}< /td>
+<td class="fail">fail</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>12</td>
+<td>Validating file data Row 10</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>13</td>
+<td>Validating file data Row 11</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>14</td>
+<td>Validating file data Row 12</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>15</td>
+<td>Validating file data Row 13</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>16</td>
+<td>Validating file data Row 14</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>17</td>
+<td>Validating file data Row 15</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>18</td>
+<td>Validating file data Row 16</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>19</td>
+<td>Validating file data Row 17</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>20</td>
+<td>Validating file data Row 18</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>21</td>
+<td>Validating file data Row 19</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="fail">
+<td>22</td>
+<td>Validating file data Row 20</td>
+<td>Available in <DB> </DB></td>
+<td>Not found in DB - {'PARENTACCOUNT': 'CU01100020', 'ORDINAL': '0', 'TYPE': '0', 'SUBTYPE': '', 'MAILOVERRIDE': '', 'SSNOVERRIDE': '', 'SSNCERTIFICATION': '', 'SSNTYPE': '', 'EFFECTIVEDATE': '2020-04-13', 'EXPIRATIONDATE': '', 'BIRTHDATE': '1965-05-06', 'TITLE': '', 'FIRST': 'Osborne', 'MIDDLE': '', 'LAST': 'Millerr', 'SUFFIX': '', 'EXTRAADDRESS': '', 'STREET': '2514 Via  Sonata Drive', 'CITY': 'Strunk', 'STATE': 'KY', 'ZIPCODE': '42649', 'HOMEPHONE': '103-875-8648', 'SSN': '476206007', 'WORKPHONE': '181-230-5090', 'LASTFMDATE': '', 'CARRIERROUTE': '', 'ADDRESSTYPE': '0', 'BENEFICIARYPERCENT': '', 'IRSCORRECTION': '', 'WORKPHONEEXTENSION': '', 'CTREXEMPT': '', 'DEATHDATE': '', 'ECOACODE': '', 'COUNTRY': '', 'COUNTRYCODE': 'US', 'EMAIL': 'OMILLERR@outlook.com', 'MOTHERSMAIDENNAME': '', 'EMPLOYERNAME': 'CBI Laboratories', 'ALTEMAIL': 'OMILLERR@outlook.com', 'LOCATOR': '0', 'MOBILEPHONE': '923-227-4404', 'PAGERNUMBER': '', 'USPERSONFLAG': '', 'IDENTDOCFLAG1': '', 'IDENTDOCFLAG2': '', 'IDENTDOCFLAG3': '', 'IDENTIDTYPE1': '', 'IDENTIDTYPE2': '', 'IDENTIDTYPE3': '', 'IDENTIDDESCRIPTION1': '', 'IDENTIDDESCRIPTION2': '', 'IDENTIDDESCRIPTION3': '', 'IDENTIDNUMBER1': '', 'IDENTIDNUMBER2': '', 'IDENTIDNUMBER3': '', 'IDENTIDISSUEDATE1': '', 'IDENTIDISSUEDATE2': '', 'IDENTIDISSUEDATE3': '', 'IDENTIDEXPIREDATE1': '', 'IDENTIDEXPIREDATE2': '', 'IDENTIDEXPIREDATE3': '', 'IDENTIDVERIFYDATE1': '', 'IDENTIDVERIFYDATE2': '', 'IDENTIDVERIFYDATE3': '', 'OCCUPATION': 'Web Developer', 'USERCHAR1': '', 'USERCHAR2': '', 'USERCHAR3': '', 'USERCHAR4': '', 'USERAMOUNT1': '', 'USERAMOUNT2': '', 'USERDATE1': '', 'USERDATE2': '', 'LASTADDRVERIFDATE': ''} </td>
+<td class="fail">fail</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>23</td>
+<td>Validating file data Row 21</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>24</td>
+<td>Validating file data Row 22</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="fail">
+<td>25</td>
+<td>Validating file data Row 23</td>
+<td>Available in <DB> </DB></td>
+<td>Not found in DB - {'PARENTACCOUNT': 'CU01100023', 'ORDINAL': '0', 'TYPE': '0', 'SUBTYPE': '', 'MAILOVERRIDE': '', 'SSNOVERRIDE': '', 'SSNCERTIFICATION': '', 'SSNTYPE': '', 'EFFECTIVEDATE': '2011-05-08', 'EXPIRATIONDATE': '', 'BIRTHDATE': '1971-03-17', 'TITLE': '', 'FIRST': 'Saleah', 'MIDDLE': '', 'LAST': 'Foisy', 'SUFFIX': '', 'EXTRAADDRESS': '', 'STREET': '6764 Tagus Street', 'CITY': 'East Dublin', 'STATE': 'GA', 'ZIPCODE': '31027', 'HOMEPHONE': '909-616-9569', 'SSN': '447286112', 'WORKPHONE': '386-266-4444', 'LASTFMDATE': '', 'CARRIERROUTE': '', 'ADDRESSTYPE': '0', 'BENEFICIARYPERCENT': '', 'IRSCORRECTION': '', 'WORKPHONEEXTENSION': '', 'CTREXEMPT': '', 'DEATHDATE': '', 'ECOACODE': '', 'COUNTRY': '', 'COUNTRYCODE': 'US', 'EMAIL': 'SFOISY@yahoo.com', 'MOTHERSMAIDENNAME': '', 'EMPLOYERNAME': 'Salem Media Group', 'ALTEMAIL': 'SFOISY@gmail.com', 'LOCATOR': '0', 'MOBILEPHONE': '332-651-9034', 'PAGERNUMBER': '', 'USPERSONFLAG': '', 'IDENTDOCFLAG1': '', 'IDENTDOCFLAG2': '', 'IDENTDOCFLAG3': '', 'IDENTIDTYPE1': '', 'IDENTIDTYPE2': '', 'IDENTIDTYPE3': '', 'IDENTIDDESCRIPTION1': '', 'IDENTIDDESCRIPTION2': '', 'IDENTIDDESCRIPTION3': '', 'IDENTIDNUMBER1': '', 'IDENTIDNUMBER2': '', 'IDENTIDNUMBER3': '', 'IDENTIDISSUEDATE1': '', 'IDENTIDISSUEDATE2': '', 'IDENTIDISSUEDATE3': '', 'IDENTIDEXPIREDATE1': '', 'IDENTIDEXPIREDATE2': '', 'IDENTIDEXPIREDATE3': '', 'IDENTIDVERIFYDATE1': '', 'IDENTIDVERIFYDATE2': '', 'IDENTIDVERIFYDATE3': '', 'OCCUPATION': 'Baker', 'USERCHAR1': '', 'USERCHAR2': '', 'USERCHAR3': '', 'USERCHAR4': '', 'USERAMOUNT1': '', 'USERAMOUNT2': '', 'USERDATE1': '', 'USERDATE2': '', 'LASTADDRVERIFDATE': ''} </td>
+<td class="fail">fail</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>26</td>
+<td>Validating file data Row 24</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>27</td>
+<td>Validating file data Row 25</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>28</td>
+<td>Validating file data Row 26</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>29</td>
+<td>Validating file data Row 27</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>30</td>
+<td>Validating file data Row 28</td>
+<td>Available in DB</td>
+<td>Available in <DB> </DB></td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+<tr class="pass">
+<td>31</td>
+<td>Validating file data Row 29</td>
+<td>Available in <DB> </DB></td>
+<td>Available in DB</td>
+<td class="pass">pass</td>
+<td></td>
+</tr>
+
+    </table>
+    </div>
+
+    <script>
+      function filter_scenarios() {
+        const radios = document.getElementsByName("scenario-filter");
+        const data_table = document.getElementById("report-data");
+        const rows = data_table.getElementsByTagName("tr");
+        if(radios[0].checked){
+          for(let i=1; i<rows.length; i++){
+              rows[i].style.display = "table-row";
+          }
+        }else if(radios[1].checked){
+          for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="pass") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }else if(radios[2].checked){
+          for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="fail") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }else{
+            for(let i=1; i<rows.length; i++){
+            if(rows[i].className==="error") {
+              rows[i].style.display = "table-row";
+            }else{
+              rows[i].style.display = "none";
+            }
+          }
+        }
+
+      }
+    </script>
+  </body>
+
+</html>

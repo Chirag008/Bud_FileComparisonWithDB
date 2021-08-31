@@ -1,0 +1,12 @@
+{
+
+  "files": [
+    {
+      "path" : "files/data.txt",
+      "report_name": "DEMO Table Comparison.html",
+      "table_name": "DEMO_TABLE"
+    }
+
+  ]
+
+}
