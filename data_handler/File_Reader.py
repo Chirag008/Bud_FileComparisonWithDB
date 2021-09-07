@@ -9,16 +9,21 @@ class File_Reader:
     is_first_row = True
     headers = None
 
-    def __init__(self, file_path, separator='~'):
+    def __init__(self, file_path, headers=None, separator='~'):
         self.separator = separator
         if not self.file_handler:
             # Get the file from azure to local machine
             self.get_file_from_azure_storage(file_path)
             # Get the file handler to the downloaded file
             self.file_handler = self.get_file_handler_from_local(file_path)
-        if self.is_first_row:
-            self.headers = self.file_handler.readline().rstrip('\n').split(self.separator)
-            self.is_first_row = False
+        # If headers are not provided to the File Reader then it means header is present in the file itself.
+        # So pick the first line as header row, split by the separator and get the headers list
+        if not headers:
+            if self.is_first_row:
+                self.headers = self.file_handler.readline().rstrip('\n').split(self.separator)
+                self.is_first_row = False
+        else:
+            self.headers = headers
 
     def get_file_from_azure_storage(self, download_file_path):
         connection_string = "DefaultEndpointsProtocol=https;AccountName=sacmfgd02dlxdatapoc2;AccountKey=yjYSUhPn7ucdPoXa43F/bS/wHQqSbvLyZVmqieS/QVEmXRjp7MAjoufq1gqEaSGXDkCK+c4XB2HXTx7X85YYOQ==;EndpointSuffix=core.windows.net"

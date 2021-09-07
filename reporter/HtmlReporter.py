@@ -53,7 +53,7 @@ class HtmlReporter:
                       f'<td>{expected_result}</td>\n' \
                       f'<td>{actual_result}</td>\n' \
                       f'<td class="{class_name}">{status}</td>\n' \
-                      f'<td>{comment}</td>\n' \
+                      f'<td style="word-wrap: break-word">{comment}</td>\n' \
                       f'</tr>\n'
         self.data = self.data + current_row
 
