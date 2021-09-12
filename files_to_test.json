@@ -2,26 +2,15 @@
 
   "files": [
     {
-      "download_from_azure": "Yes",
+      "download_from_azure": "No",
       "path" : "files/data_file_from_azure.txt",
       "report_name": "DEMO Table Comparison.html",
-      "table_name": "DEMO_TABLE",
+      "table_name": "DS_CU01_DEV.SYMITAR.ACCOUNT",
       "is_header_available_in_file": "No",
       "number_of_records_to_match" : 15,
-      "order_by_columns": ["PARENTACCOUNT", "ORDINAL"],
-      "sort_file_by_column_numbers": [1,2]
-    },
-    {
-      "download_from_azure": "No",
-      "path" : "files/data_2.txt",
-      "report_name": "DEMO Table Comparison 2.html",
-      "table_name": "DEMO_TABLE",
-      "is_header_available_in_file": "No",
-      "number_of_records_to_match" : 1000,
-      "order_by_columns": ["PARENTACCOUNT", "ORDINAL"],
-      "sort_file_by_column_numbers": [1,2]
+      "order_by_columns": ["ACCOUNTNUMBER"],
+      "sort_file_by_column_numbers": [1]
     }
-
   ]
 
 }

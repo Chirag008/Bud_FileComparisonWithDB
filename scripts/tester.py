@@ -53,7 +53,12 @@ def start_execution():
                               order_by_columns=order_by_columns,
                               sort_file_by_column_numbers=sort_file_by_column_numbers)
             comp.start_comparison()
+            # free up memory used by comparator object
+            del comp
+            print('=========================  Comparison Done  ========================')
 
 
 if __name__ == '__main__':
     start_execution()
+    print('========================= Exiting the Comparator Program  ========================')
+    quit(0)

@@ -10,6 +10,16 @@ import properties as config
 from dateutil.parser import parse
 
 
+class ErrorEncounterException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+
+class ValidationFailedException(Exception):
+    def __init__(self, message):
+        super().__init__(message)
+
+
 class Comparator:
     fr = None
     cursor = None
@@ -44,9 +54,12 @@ class Comparator:
                 status = 'error'
         self.reporter.add_scenario_result(scenario_name, str(exp_result), str(actual_result),
                                           status, comment)
-        if (status == 'fail' or status == 'error') and exit_on_failure:
+        if status == 'fail' and exit_on_failure:
             self.teardown()
-            exit(1)
+            raise ValidationFailedException('Validation failed! Stopped further processing!')
+        elif status == 'error' and exit_on_failure:
+            self.teardown()
+            # raise ErrorEncounterException.ErrorEncounterException('Some error occurred! Stopped processing')
 
     def start_comparison(self):
         try:
@@ -71,6 +84,8 @@ class Comparator:
                                             order_ascending=True,
                                             delimiter='~',
                                             is_header_in_file=self.is_header_available)
+            # releasing memory taken up by file_handler
+            del file_handler
             # further operations will be handled on sorted file.
             self.file_path = temp_file_path
 
@@ -83,9 +98,9 @@ class Comparator:
 
             # Check if number of columns in file and database are same in number
             self.validate_result(scenario_name='Validate number of columns same in data file and table',
-                                 exp_result=f'Number of columns in DB table - {len(self.fr.headers)}',
+                                 exp_result=f'Number of columns in DB table - {self.fr.num_of_cols}',
                                  actual_result=f'Number of columns in DB table - {len(list(result[0].keys()))}',
-                                 exit_on_failure=False)
+                                 exit_on_failure=True)
 
             # Check if all the columns are same in both data file and DB table (iff header is available in file)
             if self.is_header_available:
@@ -94,13 +109,13 @@ class Comparator:
                 self.validate_result(scenario_name='Validate column names in data file and db table',
                                      exp_result=headers_data_file,
                                      actual_result=headers_db_table,
-                                     exit_on_failure=False)
-
+                                     exit_on_failure=True)
             number_of_row_checked = 0
             while True and number_of_row_checked <= self.number_of_records_to_match:
                 # iterate all the rows in result set and check against the file
                 for db_row in result:
-                    if number_of_row_checked >= self.number_of_records_to_match:
+                    if number_of_row_checked == self.number_of_records_to_match:
+                        number_of_row_checked += 1
                         break
                     print(f'Checking for row --->  {db_row}')
                     # check the column by which we sorted the results. If current file row (sorted columns) value
@@ -207,6 +222,8 @@ class Comparator:
             print('processed data file completely.')
             self.teardown()
         except Exception as e:
+            if isinstance(e, ValidationFailedException):
+                return
             print('Some error occurred while processing the file.')
             print(f'full traceback --- {traceback.format_exc()}')
             self.validate_result('Checking for any error while execution',
@@ -240,3 +257,6 @@ class Comparator:
             print('closing database connection ... !')
             self.cursor.close()
             print('database connection closed successfully !!')
+        del self.reporter
+        del self.cursor
+        del self.fr

@@ -1,11 +1,11 @@
 {
   "db_connection":
     {
-      "username" : "ChiragBansal",
-      "password" : "xxxxxxxxxxx",
-      "account" : "sa04161.east-us-2.azure",
-      "warehouse" : "COMPUTE_WH",
-      "database" : "DEMO_DB",
-      "schema" : "PUBLIC"
+       "username" : "Bud.Gupta@cunamutual.com",
+      "password" : "Happy@64",
+      "account" : "cunadlx.east-us-2.azure",
+      "warehouse" : "DS_WH_DEV",
+      "database" : "DS_CU01_DEV",
+      "schema" : ""
     }
 }

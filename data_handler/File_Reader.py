@@ -6,6 +6,7 @@ class File_Reader:
     file_handler = None
     is_first_row = True
     headers = None
+    num_of_cols = None
 
     def __init__(self, file_path, headers=None, separator='~'):
         self.separator = separator
@@ -18,8 +19,12 @@ class File_Reader:
             if self.is_first_row:
                 self.headers = self.file_handler.readline().rstrip('\n').split(self.separator)
                 self.is_first_row = False
+                self.num_of_cols = len(self.headers)
         else:
             self.headers = headers
+            self.num_of_cols = len(self.file_handler.readline().rstrip('\n').split(self.separator))
+            self.file_handler.seek(0)
+
 
     def get_file_handler_from_local(self, file_path):
         project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
