@@ -6,16 +6,19 @@
       "report_name": "DEMO Table Comparison.html",
       "table_name": "DEMO_TABLE",
       "is_header_available_in_file": "Yes",
-      "number_of_records_to_match" : 15
+      "number_of_records_to_match" : 15,
+      "order_by_columns": ["PARENTACCOUNT", "ORDINAL"],
+      "sort_file_by_column_numbers": [1,2]
     },
     {
       "path" : "files/data_2.txt",
       "report_name": "DEMO Table Comparison 2.html",
       "table_name": "DEMO_TABLE",
       "is_header_available_in_file": "No",
-      "number_of_records_to_match" : 1000
+      "number_of_records_to_match" : 1000,
+      "order_by_columns": ["PARENTACCOUNT", "ORDINAL"],
+      "sort_file_by_column_numbers": [1,2]
     }
-
 
   ]
 
