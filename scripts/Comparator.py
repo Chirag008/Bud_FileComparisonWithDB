@@ -100,7 +100,7 @@ class Comparator:
             self.validate_result(scenario_name='Validate number of columns same in data file and table',
                                  exp_result=f'Number of columns in DB table - {self.fr.num_of_cols}',
                                  actual_result=f'Number of columns in DB table - {len(list(result[0].keys()))}',
-                                 exit_on_failure=True)
+                                 exit_on_failure=False)
 
             # Check if all the columns are same in both data file and DB table (iff header is available in file)
             if self.is_header_available:
@@ -149,6 +149,8 @@ class Comparator:
                         current_row_matched = True
                         unmatched_values = {}
                         for header in self.fr.headers:
+                            if header == 'REPORTDATE':
+                                continue
                             if row_dict[header] == db_row[header]:
                                 continue
                             elif row_dict[header] == '' and db_row[header] is None:
