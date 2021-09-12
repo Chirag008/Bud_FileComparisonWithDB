@@ -3,6 +3,7 @@ import traceback
 from reporter.HtmlReporter import HtmlReporter
 from data_handler.File_Reader import File_Reader
 from data_handler.CSV_File_Handler import CSV_File_Handler
+from data_handler.Azure_File_Downloader import Azure_File_Downloader
 from data_handler.Snowflake_DB_Connection_Provider import Snowflake_DB_Connection_Provider
 from snowflake.connector import DictCursor
 import properties as config
@@ -12,10 +13,12 @@ from dateutil.parser import parse
 class Comparator:
     fr = None
     cursor = None
+    azure_file_downloader = Azure_File_Downloader()
 
-    def __init__(self, file_path, report_name, table_name, is_header_available, number_of_records_to_match,
-                 order_by_columns, sort_file_by_column_numbers):
+    def __init__(self, file_path, should_download_from_azure, report_name, table_name, is_header_available,
+                 number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
         self.file_path = file_path
+        self.should_download_from_azure = should_download_from_azure
         self.report_name = report_name
         self.table_name = table_name
         self.is_header_available = is_header_available
@@ -54,6 +57,10 @@ class Comparator:
             self.cursor = db_con.cursor(DictCursor)
             self.cursor = self.cursor.execute(sql_query)
             result = self.cursor.fetchmany(config.BUFFER_NUMBER_OF_DB_ROWS)
+
+            # download the file to specified path from azure storage
+            if self.should_download_from_azure:
+                self.azure_file_downloader.get_file_from_azure_storage(self.file_path)
 
             # sort the data file and save it in a temporary location.
             file_handler = CSV_File_Handler()

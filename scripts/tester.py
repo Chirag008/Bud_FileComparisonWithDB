@@ -33,8 +33,19 @@ def start_execution():
             else:
                 number_of_records_to_match = sys.maxsize
 
+            # check if file is to be downloaded from azure storage
+            should_download_from_azure = execution_info.get('download_from_azure')
+            if should_download_from_azure:
+                if should_download_from_azure.lower() in ['yes', 'y', 'true']:
+                    should_download_from_azure = True
+                else:
+                    should_download_from_azure = False
+            else:
+                should_download_from_azure = False
+
             print(f'========================   Started Comparison for file -- {file_path}  ===========================')
             comp = Comparator(file_path=file_path,
+                              should_download_from_azure=should_download_from_azure,
                               report_name=report_name,
                               table_name=table,
                               is_header_available=is_header_available,
