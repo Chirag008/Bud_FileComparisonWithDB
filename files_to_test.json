@@ -4,13 +4,14 @@
     {
       "download_from_azure": "No",
       "path" : "files/data_file_from_azure.txt",
-      "report_name": "DEMO Table Comparison.html",
-      "table_name": "DS_CU01_DEV.SYMITAR.ACCOUNT",
+      "report_name": "NAMEComparison.html",
+      "table_name": "DS_CU01_DEV.SYMITAR.NAME",
       "is_header_available_in_file": "No",
       "number_of_records_to_match" : 15,
-      "order_by_columns": ["ACCOUNTNUMBER"],
-      "sort_file_by_column_numbers": [1]
+      "order_by_columns": ["PARENTACCOUNT","ORDINAL"],
+      "sort_file_by_column_numbers": [1,2]
     }
+
   ]
 
 }

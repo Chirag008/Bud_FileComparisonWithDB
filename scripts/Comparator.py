@@ -24,6 +24,8 @@ class Comparator:
     fr = None
     cursor = None
     azure_file_downloader = Azure_File_Downloader()
+    columns_to_exclude_in_comparison = ['REPORTDATE']
+    out_csv = None
 
     def __init__(self, file_path, should_download_from_azure, report_name, table_name, is_header_available,
                  number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
@@ -84,8 +86,16 @@ class Comparator:
                                             order_ascending=True,
                                             delimiter='~',
                                             is_header_in_file=self.is_header_available)
+
+            # open a csv file for writing output
+            self.out_csv = file_handler.get_new_csv_file_to_write(self.report_name.replace('.html', '.csv'))
+            # write headers from db table into csv file
+            db_headers = [k.upper() for k in result[0].keys()]
+            self.out_csv.write(','.join(db_headers) + '\n')
+
             # releasing memory taken up by file_handler
-            del file_handler
+            # del file_handler
+
             # further operations will be handled on sorted file.
             self.file_path = temp_file_path
 
@@ -114,6 +124,7 @@ class Comparator:
             while True and number_of_row_checked <= self.number_of_records_to_match:
                 # iterate all the rows in result set and check against the file
                 for db_row in result:
+                    db_row = {k: None if v is None else str(v) for k, v in db_row.items()}
                     if number_of_row_checked == self.number_of_records_to_match:
                         number_of_row_checked += 1
                         break
@@ -145,11 +156,14 @@ class Comparator:
                         self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
                                              exp_result=f'database row should be present in file data - {db_row}',
                                              actual_result=f'database row not found in file data')
+                        # writing db unmatched row in csv file
+                        db_row_values = [str(v) if v is not None else '' for v in db_row.values()]
+                        self.out_csv.write(','.join(db_row_values) + '\n')
                     else:
                         current_row_matched = True
                         unmatched_values = {}
                         for header in self.fr.headers:
-                            if header == 'REPORTDATE':
+                            if header in self.columns_to_exclude_in_comparison:
                                 continue
                             if row_dict[header] == db_row[header]:
                                 continue
@@ -259,6 +273,11 @@ class Comparator:
             print('closing database connection ... !')
             self.cursor.close()
             print('database connection closed successfully !!')
+        if self.out_csv is not None:
+            print('Closing out_csv file ... !')
+            self.out_csv.flush()
+            self.out_csv.close()
+            print('Closed out_csv file successfully !!')
         del self.reporter
         del self.cursor
         del self.fr

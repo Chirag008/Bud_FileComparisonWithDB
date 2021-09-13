@@ -5,6 +5,15 @@ from pathlib import Path
 
 
 class CSV_File_Handler:
+    def get_new_csv_file_to_write(self, file_name):
+        project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
+        file_dir = 'report/csv_output'
+        file_dir = os.path.join(project_root, file_dir)
+        if not os.path.exists(file_dir):
+            os.makedirs(file_dir)
+        file_path = os.path.join(file_dir, file_name)
+        return open(file_path, 'w')
+
     def sort_and_save_file(self, file_to_sort, sorted_file_path, columns_to_sort_on, order_ascending=True,
                            delimiter=',', is_header_in_file=True):
         project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
