@@ -69,6 +69,8 @@ class Comparator:
             db_con = Snowflake_DB_Connection_Provider().get_db_connection()
             sql_query = f'Select * from {self.table_name} order by ' \
                         f'{",".join(self.order_by_columns)}'
+            # temporary fix
+            self.order_by_columns.remove('REPORTDATE')
             self.cursor = db_con.cursor(DictCursor)
             self.cursor = self.cursor.execute(sql_query)
             result = self.cursor.fetchmany(config.BUFFER_NUMBER_OF_DB_ROWS)

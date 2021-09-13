@@ -7,8 +7,8 @@
       "report_name": "NAMEComparison.html",
       "table_name": "DS_CU01_DEV.SYMITAR.NAME",
       "is_header_available_in_file": "No",
-      "number_of_records_to_match" : 15,
-      "order_by_columns": ["PARENTACCOUNT","ORDINAL"],
+      "number_of_records_to_match" : 150,
+      "order_by_columns": ["REPORTDATE","PARENTACCOUNT","ORDINAL"],
       "sort_file_by_column_numbers": [1,2]
     }
 
