@@ -3,13 +3,14 @@
   "files": [
     {
       "download_from_azure": "No",
+      "azure_file_extract_name": "cu00000001/202103/20210331/EXTRACT.ACCOUNT",
       "path" : "files/data_file_from_azure.txt",
       "report_name": "NAMEComparison.html",
       "table_name": "DS_CU01_DEV.SYMITAR.NAME",
       "is_header_available_in_file": "No",
       "number_of_records_to_match" : 150,
-      "order_by_columns": ["REPORTDATE","PARENTACCOUNT","ORDINAL"],
-      "sort_file_by_column_numbers": [1,2]
+      "order_by_columns": {"REPORTDATE": "DESC","PARENTACCOUNT": "ASC", "ORDINAL": "ASC"},
+      "sort_file_by_column_numbers": {"1": "ASC", "2": "ASC"}
     }
 
   ]

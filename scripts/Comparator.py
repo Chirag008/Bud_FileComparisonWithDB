@@ -4,6 +4,7 @@ from reporter.HtmlReporter import HtmlReporter
 from data_handler.File_Reader import File_Reader
 from data_handler.CSV_File_Handler import CSV_File_Handler
 from data_handler.Azure_File_Downloader import Azure_File_Downloader
+from data_handler.Xlsx_File_Handler import Xlsx_File_Handler
 from data_handler.Snowflake_DB_Connection_Provider import Snowflake_DB_Connection_Provider
 from snowflake.connector import DictCursor
 import properties as config
@@ -26,9 +27,10 @@ class Comparator:
     azure_file_downloader = Azure_File_Downloader()
     columns_to_exclude_in_comparison = ['REPORTDATE']
     out_csv = None
+    xlsx_fh = None
 
-    def __init__(self, file_path, should_download_from_azure, report_name, table_name, is_header_available,
-                 number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
+    def __init__(self, file_path, should_download_from_azure, azure_file_extract_name, report_name, table_name,
+                 is_header_available, number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
         self.file_path = file_path
         self.should_download_from_azure = should_download_from_azure
         self.report_name = report_name
@@ -38,6 +40,7 @@ class Comparator:
         self.reporter = HtmlReporter(report_name=report_name)
         self.order_by_columns = order_by_columns
         self.sort_file_by_column_numbers = sort_file_by_column_numbers
+        self.azure_file_extract_name = azure_file_extract_name
 
     def validate_result(self,
                         scenario_name,
@@ -67,17 +70,21 @@ class Comparator:
         try:
             # get database connection and execute fetch query
             db_con = Snowflake_DB_Connection_Provider().get_db_connection()
-            sql_query = f'Select * from {self.table_name} order by ' \
-                        f'{",".join(self.order_by_columns)}'
-            # temporary fix
-            self.order_by_columns.remove('REPORTDATE')
+            order_by_part_of_query = ''
+            for k, v in self.order_by_columns.items():
+                order_by_part_of_query += f'{k} {v}, '
+            order_by_part_of_query = order_by_part_of_query[:-2]
+            sql_query = f'Select * from {self.table_name} order by {order_by_part_of_query}'
+            print(f'Querying DB with -- {sql_query}')
+            # temporary fix (because file doesn't have column REPORTDATE as of now
+            self.order_by_columns.pop('REPORTDATE', None)
             self.cursor = db_con.cursor(DictCursor)
             self.cursor = self.cursor.execute(sql_query)
             result = self.cursor.fetchmany(config.BUFFER_NUMBER_OF_DB_ROWS)
 
             # download the file to specified path from azure storage
             if self.should_download_from_azure:
-                self.azure_file_downloader.get_file_from_azure_storage(self.file_path)
+                self.azure_file_downloader.get_file_from_azure_storage(self.azure_file_extract_name, self.file_path)
 
             # sort the data file and save it in a temporary location.
             file_handler = CSV_File_Handler()
@@ -98,6 +105,10 @@ class Comparator:
             # releasing memory taken up by file_handler
             # del file_handler
 
+            # opening an xlsx file to store the comparison result
+            self.xlsx_fh = Xlsx_File_Handler(self.report_name.replace('.html', '.xlsx'),
+                                             [k for k in result[0].keys()])
+
             # further operations will be handled on sorted file.
             self.file_path = temp_file_path
 
@@ -109,9 +120,11 @@ class Comparator:
             row_dict = self.fr.get_next_row_as_dict()
 
             # Check if number of columns in file and database are same in number
+            db_col_count = len(list(result[0].keys()))
             self.validate_result(scenario_name='Validate number of columns same in data file and table',
-                                 exp_result=f'Number of columns in DB table - {self.fr.num_of_cols}',
-                                 actual_result=f'Number of columns in DB table - {len(list(result[0].keys()))}',
+                                 exp_result=f'columns in DB table - [{db_col_count}] and data file - [{db_col_count}]',
+                                 actual_result=f'columns in DB table - [{db_col_count}] and data file - '
+                                               f'[{self.fr.num_of_cols}]',
                                  exit_on_failure=False)
 
             # Check if all the columns are same in both data file and DB table (iff header is available in file)
@@ -127,22 +140,27 @@ class Comparator:
                 # iterate all the rows in result set and check against the file
                 for db_row in result:
                     db_row = {k: None if v is None else str(v) for k, v in db_row.items()}
+                    # remove the 00:00:00 from date if there is any column with date time as yyyy-mm-dd 00:00:00
+                    db_row = {k: v.replace('00:00:00', '').strip() if v is not None else v for k, v in db_row.items()}
+                    # writing db row in xlsx file
+                    self.xlsx_fh.write_dict_as_row_in_xlsx_file(db_row)
                     if number_of_row_checked == self.number_of_records_to_match:
                         number_of_row_checked += 1
                         break
                     print(f'Checking for row --->  {db_row}')
                     # check the column by which we sorted the results. If current file row (sorted columns) value
-                    # matches then we will check for other columns. otherwise fetch the row until sorted column < db
+                    # matches then we will check for other columns. otherwise fetch the row until file column < db
                     # column
                     is_order_by_columns_matched = True
-                    for i, sorted_col in enumerate(self.order_by_columns):
+                    order_by_columns_list = list(self.order_by_columns.keys())
+                    for i, sorted_col in enumerate(order_by_columns_list):
                         while (db_row[sorted_col] != row_dict[sorted_col]) \
                                 and row_dict[sorted_col] < db_row[sorted_col]:
                             row_dict = self.fr.get_next_row_as_dict()
                             # now new row should match all the previous ordered columns else we should break from here
                             previous_cols_matched = True
                             for col in range(0, i):
-                                if db_row[self.order_by_columns[col]] != row_dict[self.order_by_columns[col]]:
+                                if db_row[order_by_columns_list[col]] != row_dict[order_by_columns_list[col]]:
                                     is_order_by_columns_matched = False
                                     previous_cols_matched = False
                                     break
@@ -161,6 +179,8 @@ class Comparator:
                         # writing db unmatched row in csv file
                         db_row_values = [str(v) if v is not None else '' for v in db_row.values()]
                         self.out_csv.write(','.join(db_row_values) + '\n')
+                        # writing in xlsx file that -- data not found for this row in file
+                        self.xlsx_fh.write_row_in_xlsx_file(['DB row not found in file !'])
                     else:
                         current_row_matched = True
                         unmatched_values = {}
@@ -180,12 +200,18 @@ class Comparator:
                                                  exp_result=f'database row should be present in file data - {db_row}',
                                                  actual_result=f'database row present in file data - {row_dict}',
                                                  status='pass')
+                            # writing the file row in xlsx file
+                            self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict)
                         else:
                             self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
                                                  exp_result=f'database row should be present in file data - {db_row}',
                                                  actual_result=f'database row not matched with file data - {row_dict}',
                                                  status='fail',
                                                  comment=str(unmatched_values))
+                            # writing the file row in xlsx file
+                            self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict,
+                                                                        unmatched_col_names_as_list=
+                                                                        [k for k in unmatched_values.keys()])
                         row_dict = self.fr.get_next_row_as_dict()
                     number_of_row_checked += 1
 
@@ -280,6 +306,8 @@ class Comparator:
             self.out_csv.flush()
             self.out_csv.close()
             print('Closed out_csv file successfully !!')
+        if self.xlsx_fh is not None:
+            self.xlsx_fh.save_xlsx_file()
         del self.reporter
         del self.cursor
         del self.fr

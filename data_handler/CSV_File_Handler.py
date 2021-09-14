@@ -14,24 +14,26 @@ class CSV_File_Handler:
         file_path = os.path.join(file_dir, file_name)
         return open(file_path, 'w')
 
-    def sort_and_save_file(self, file_to_sort, sorted_file_path, columns_to_sort_on, order_ascending=True,
+    def sort_and_save_file(self, file_to_sort, sorted_file_path, columns_to_sort_on: dict, order_ascending=True,
                            delimiter=',', is_header_in_file=True):
         project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
         file_to_sort = os.path.join(project_root, file_to_sort)
         sorted_file_path = os.path.join(project_root, sorted_file_path)
         if is_header_in_file:
             csv_data = pd.read_csv(file_to_sort, sep=delimiter, index_col=False)
+            columns = [col_name for col_name in columns_to_sort_on.keys()]
         else:
             csv_data = pd.read_csv(file_to_sort, sep=delimiter, index_col=False, header=None)
-            columns_to_sort_on = [(col_index-1) for col_index in columns_to_sort_on]
+            columns = [(int(col_index) - 1) for col_index in columns_to_sort_on.keys()]
         print("\nBefore sorting:\nFirst 10 rows of file -- ")
         print(csv_data.head(10))
 
-        order_ascending = [order_ascending for i in range(0, len(columns_to_sort_on))]
+        # order_ascending = [order_ascending for i in range(0, len(columns_to_sort_on))]
+        order = [True if v.lower() == 'asc' else False for v in columns_to_sort_on.values()]
         # sort data frame
-        csv_data.sort_values(columns_to_sort_on,
+        csv_data.sort_values(columns,
                              axis=0,
-                             ascending=order_ascending,
+                             ascending=order,
                              inplace=True)
 
         # displaying sorted data frame
@@ -48,8 +50,8 @@ class CSV_File_Handler:
 
 if __name__ == '__main__':
     cfh = CSV_File_Handler()
-    cfh.sort_and_save_file('../files/data_2.txt', '../files/temp/data_sorted_temp.csv',
-                           columns_to_sort_on=[1, 2],
+    cfh.sort_and_save_file('files/data_2.txt', 'files/data_2_sorted_temp.txt',
+                           columns_to_sort_on={'1': "DESC", '2': "ASC"},
                            order_ascending=True,
                            delimiter='~',
                            is_header_in_file=False)

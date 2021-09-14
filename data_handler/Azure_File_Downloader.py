@@ -6,7 +6,7 @@ from azure.storage.blob import BlobClient, BlobServiceClient
 
 class Azure_File_Downloader:
 
-    def get_file_from_azure_storage(self, download_file_path):
+    def get_file_from_azure_storage(self, azure_file_extract_name, download_file_path):
         connection_string = "DefaultEndpointsProtocol=https;AccountName=sacmfgd02dlxdatapoc2;AccountKey=yjYSUhPn7ucdPoXa43F/bS/wHQqSbvLyZVmqieS/QVEmXRjp7MAjoufq1gqEaSGXDkCK+c4XB2HXTx7X85YYOQ==;EndpointSuffix=core.windows.net"
         try:
             blob = BlobClient.from_connection_string(conn_str=connection_string, container_name="aedigital",
@@ -25,7 +25,7 @@ class Azure_File_Downloader:
 
         for blob in blobs_list:
             print(blob.name)
-            if "cu00000001/202103/20210331/EXTRACT.ACCOUNT" in blob.name:
+            if azure_file_extract_name in blob.name:
                 print("\nDownloading blob to \n\t" + download_file_path)
                 with open(download_file_path, "wb") as download_file:
                     print(blob.name + '\n')

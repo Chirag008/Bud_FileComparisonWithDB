@@ -43,9 +43,20 @@ def start_execution():
             else:
                 should_download_from_azure = False
 
+            # get name of azure file extract
+            azure_file_extract_name = None
+            if should_download_from_azure:
+                azure_file_extract_name = execution_info.get('azure_file_extract_name')
+                if azure_file_extract_name is None:
+                    print('#########################################################################\n')
+                    print(f"*****************  Azure file extract name not provided in json file. "
+                          f"So skipped processing for report name - {report_name}. *****************")
+                    print('\n#########################################################################')
+                    continue
             print(f'========================   Started Comparison for file -- {file_path}  ===========================')
             comp = Comparator(file_path=file_path,
                               should_download_from_azure=should_download_from_azure,
+                              azure_file_extract_name=azure_file_extract_name,
                               report_name=report_name,
                               table_name=table,
                               is_header_available=is_header_available,
