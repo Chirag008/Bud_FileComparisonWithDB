@@ -25,7 +25,9 @@ class Xlsx_File_Handler:
         self.unmatched_data_fill_style = PatternFill(start_color='FFFFA500',
                                                      end_color='FFFFA500',
                                                      fill_type='solid')
-
+        self.blank_row_fill_style = PatternFill(start_color='FFC39BD3',
+                                                end_color='FFC39BD3',
+                                                fill_type='solid')
 
     def get_complete_xlsx_file_path(self, file_name):
         project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
@@ -39,6 +41,11 @@ class Xlsx_File_Handler:
     def write_row_in_xlsx_file(self, list_of_col_values_for_a_row: list):
         for col_num, val in enumerate(list_of_col_values_for_a_row, start=1):
             self.xlsx_sheet.cell(row=self.row_index, column=col_num).value = val
+        self.row_index += 1
+
+    def write_blank_colored_row_in_xlsx_file(self):
+        for col_number in range(1, len(self.header_to_col_number_map)+1):
+            self.xlsx_sheet.cell(row=self.row_index, column=col_number).fill = self.blank_row_fill_style
         self.row_index += 1
 
     def write_dict_as_row_in_xlsx_file(self, row_as_dictionary: dict, unmatched_col_names_as_list: list = None):

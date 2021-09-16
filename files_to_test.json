@@ -2,8 +2,8 @@
 
   "files": [
     {
-      "download_from_azure": "No",
-      "azure_file_extract_name": "cu00000001/202103/20210331/EXTRACT.ACCOUNT",
+      "download_from_azure": "Yes",
+      "azure_file_extract_name": "cu00000001/*/*/EXTRACT.ACCOUNT",
       "path" : "files/data_file_from_azure.txt",
       "report_name": "NAMEComparison.html",
       "table_name": "DS_CU01_DEV.SYMITAR.NAME",

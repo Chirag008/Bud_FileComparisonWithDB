@@ -96,11 +96,15 @@ class Comparator:
                                             delimiter='~',
                                             is_header_in_file=self.is_header_available)
 
+            ########################################################################################
+            # (No more required. Now storing in xlsx file. So commenting it)
             # open a csv file for writing output
-            self.out_csv = file_handler.get_new_csv_file_to_write(self.report_name.replace('.html', '.csv'))
+            # self.out_csv = file_handler.get_new_csv_file_to_write(self.report_name.replace('.html', '.csv'))
             # write headers from db table into csv file
-            db_headers = [k.upper() for k in result[0].keys()]
-            self.out_csv.write(','.join(db_headers) + '\n')
+            # db_headers = [k.upper() for k in result[0].keys()]
+            # self.out_csv.write(','.join(db_headers) + '\n')
+            ########################################################################################
+
 
             # releasing memory taken up by file_handler
             # del file_handler
@@ -176,11 +180,15 @@ class Comparator:
                         self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
                                              exp_result=f'database row should be present in file data - {db_row}',
                                              actual_result=f'database row not found in file data')
+                        ########################################################################################
+                        # (No more required. Now storing in xlsx file. So commenting it)
                         # writing db unmatched row in csv file
-                        db_row_values = [str(v) if v is not None else '' for v in db_row.values()]
-                        self.out_csv.write(','.join(db_row_values) + '\n')
+                        # db_row_values = [str(v) if v is not None else '' for v in db_row.values()]
+                        # self.out_csv.write(','.join(db_row_values) + '\n')
+                        ########################################################################################
                         # writing in xlsx file that -- data not found for this row in file
                         self.xlsx_fh.write_row_in_xlsx_file(['DB row not found in file !'])
+                        self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
                     else:
                         current_row_matched = True
                         unmatched_values = {}
@@ -202,6 +210,7 @@ class Comparator:
                                                  status='pass')
                             # writing the file row in xlsx file
                             self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict)
+                            self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
                         else:
                             self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
                                                  exp_result=f'database row should be present in file data - {db_row}',
@@ -212,6 +221,7 @@ class Comparator:
                             self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict,
                                                                         unmatched_col_names_as_list=
                                                                         [k for k in unmatched_values.keys()])
+                            self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
                         row_dict = self.fr.get_next_row_as_dict()
                     number_of_row_checked += 1
 
@@ -297,17 +307,18 @@ class Comparator:
             print('closing data file ... !')
             self.fr.close_file()
             print('data file closed successfully !!')
+            del self.fr
         if self.cursor is not None:
             print('closing database connection ... !')
             self.cursor.close()
             print('database connection closed successfully !!')
+            del self.cursor
         if self.out_csv is not None:
             print('Closing out_csv file ... !')
             self.out_csv.flush()
             self.out_csv.close()
             print('Closed out_csv file successfully !!')
+            del self.out_csv
         if self.xlsx_fh is not None:
             self.xlsx_fh.save_xlsx_file()
-        del self.reporter
-        del self.cursor
-        del self.fr
+            del self.xlsx_fh
