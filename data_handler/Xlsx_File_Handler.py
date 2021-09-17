@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill
+from openpyxl.styles import PatternFill, Font
 
 
 class Xlsx_File_Handler:
@@ -19,7 +19,7 @@ class Xlsx_File_Handler:
         self.xlsx_sheet = self.xlsx_file.active
         self.xlsx_sheet.title = 'Comparison_Result'
         self.number_of_cols = len(headers_list)
-        self.write_row_in_xlsx_file(headers_list)
+        self.write_row_in_xlsx_file(headers_list, Font(bold=True))
         for index, col_name in enumerate(headers_list, start=1):
             self.header_to_col_number_map[col_name] = index
         self.unmatched_data_fill_style = PatternFill(start_color='FFFFA500',
@@ -38,9 +38,12 @@ class Xlsx_File_Handler:
         file_path = os.path.join(file_dir, file_name)
         return file_path
 
-    def write_row_in_xlsx_file(self, list_of_col_values_for_a_row: list):
+    def write_row_in_xlsx_file(self, list_of_col_values_for_a_row: list, font=None):
         for col_num, val in enumerate(list_of_col_values_for_a_row, start=1):
             self.xlsx_sheet.cell(row=self.row_index, column=col_num).value = val
+        if font:
+            for col_num, val in enumerate(list_of_col_values_for_a_row, start=1):
+                self.xlsx_sheet.cell(row=self.row_index, column=col_num).font = font
         self.row_index += 1
 
     def write_blank_colored_row_in_xlsx_file(self):

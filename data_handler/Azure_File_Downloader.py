@@ -16,7 +16,7 @@ class Azure_File_Downloader:
         try:
             blob = BlobClient.from_connection_string(conn_str=connection_string, container_name="aedigital",
                                                      blob_name="cu00000001/202103/20210331")
-            print("connection to azure storage successfully!")
+            print("connected to azure storage successfully!")
         except:
             print("problem in connecting to azure storage")
         container_name = "aedigital"
@@ -75,6 +75,7 @@ class Azure_File_Downloader:
             blob_client = container_client.get_blob_client(latest_file)
             download_file.write(blob_client.download_blob().readall())
         print('Downloaded file successfully !!')
+        return latest_file
 
 
 if __name__ == '__main__':

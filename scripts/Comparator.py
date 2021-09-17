@@ -1,5 +1,7 @@
 import traceback
 
+from openpyxl.styles import Font
+
 from reporter.HtmlReporter import HtmlReporter
 from data_handler.File_Reader import File_Reader
 from data_handler.CSV_File_Handler import CSV_File_Handler
@@ -28,6 +30,7 @@ class Comparator:
     columns_to_exclude_in_comparison = ['REPORTDATE']
     out_csv = None
     xlsx_fh = None
+    azure_file_name_dict = None
 
     def __init__(self, file_path, should_download_from_azure, azure_file_extract_name, report_name, table_name,
                  is_header_available, number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
@@ -84,7 +87,12 @@ class Comparator:
 
             # download the file to specified path from azure storage
             if self.should_download_from_azure:
-                self.azure_file_downloader.get_file_from_azure_storage(self.azure_file_extract_name, self.file_path)
+                filename = self.azure_file_downloader.get_file_from_azure_storage(
+                    self.azure_file_extract_name,
+                    self.file_path)
+                self.azure_file_name_dict = {'FILENAME': filename}
+            else:
+                self.azure_file_name_dict = {'FILENAME': self.azure_file_extract_name}
 
             # sort the data file and save it in a temporary location.
             file_handler = CSV_File_Handler()
@@ -105,13 +113,12 @@ class Comparator:
             # self.out_csv.write(','.join(db_headers) + '\n')
             ########################################################################################
 
-
             # releasing memory taken up by file_handler
             # del file_handler
 
             # opening an xlsx file to store the comparison result
             self.xlsx_fh = Xlsx_File_Handler(self.report_name.replace('.html', '.xlsx'),
-                                             [k for k in result[0].keys()])
+                                             ['FILENAME'] + [k for k in result[0].keys()])
 
             # further operations will be handled on sorted file.
             self.file_path = temp_file_path
@@ -143,14 +150,14 @@ class Comparator:
             while True and number_of_row_checked <= self.number_of_records_to_match:
                 # iterate all the rows in result set and check against the file
                 for db_row in result:
+                    if number_of_row_checked == self.number_of_records_to_match:
+                        number_of_row_checked += 1
+                        break
                     db_row = {k: None if v is None else str(v) for k, v in db_row.items()}
                     # remove the 00:00:00 from date if there is any column with date time as yyyy-mm-dd 00:00:00
                     db_row = {k: v.replace('00:00:00', '').strip() if v is not None else v for k, v in db_row.items()}
                     # writing db row in xlsx file
-                    self.xlsx_fh.write_dict_as_row_in_xlsx_file(db_row)
-                    if number_of_row_checked == self.number_of_records_to_match:
-                        number_of_row_checked += 1
-                        break
+                    self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **db_row})
                     print(f'Checking for row --->  {db_row}')
                     # check the column by which we sorted the results. If current file row (sorted columns) value
                     # matches then we will check for other columns. otherwise fetch the row until file column < db
@@ -187,7 +194,8 @@ class Comparator:
                         # self.out_csv.write(','.join(db_row_values) + '\n')
                         ########################################################################################
                         # writing in xlsx file that -- data not found for this row in file
-                        self.xlsx_fh.write_row_in_xlsx_file(['DB row not found in file !'])
+                        self.xlsx_fh.write_row_in_xlsx_file([self.azure_file_name_dict['FILENAME'],
+                                                             'DB row not found in file !'], Font(color='FF0000'))
                         self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
                     else:
                         current_row_matched = True
@@ -209,7 +217,7 @@ class Comparator:
                                                  actual_result=f'database row present in file data - {row_dict}',
                                                  status='pass')
                             # writing the file row in xlsx file
-                            self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict)
+                            self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **row_dict})
                             self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
                         else:
                             self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
@@ -218,7 +226,7 @@ class Comparator:
                                                  status='fail',
                                                  comment=str(unmatched_values))
                             # writing the file row in xlsx file
-                            self.xlsx_fh.write_dict_as_row_in_xlsx_file(row_dict,
+                            self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **row_dict},
                                                                         unmatched_col_names_as_list=
                                                                         [k for k in unmatched_values.keys()])
                             self.xlsx_fh.write_blank_colored_row_in_xlsx_file()

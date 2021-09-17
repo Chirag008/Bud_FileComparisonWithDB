@@ -53,6 +53,8 @@ def start_execution():
                           f"So skipped processing for report name - {report_name}. *****************")
                     print('\n#########################################################################')
                     continue
+            else:
+                azure_file_extract_name = execution_info.get('azure_file_extract_name')
             print(f'========================   Started Comparison for file -- {file_path}  ===========================')
             comp = Comparator(file_path=file_path,
                               should_download_from_azure=should_download_from_azure,
