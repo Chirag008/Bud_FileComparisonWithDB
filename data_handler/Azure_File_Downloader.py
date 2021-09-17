@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 from azure.storage.blob import BlobClient, BlobServiceClient
+from data_handler.Azure_Creds import Azure_Creds
 
 
 class AzureFileNotFoundException(Exception):
@@ -10,16 +11,19 @@ class AzureFileNotFoundException(Exception):
 
 
 class Azure_File_Downloader:
-
+    azure_creds = Azure_Creds()
     def get_file_from_azure_storage(self, azure_file_extract_name, download_file_path):
-        connection_string = "DefaultEndpointsProtocol=https;AccountName=sacmfgd02dlxdatapoc2;AccountKey=yjYSUhPn7ucdPoXa43F/bS/wHQqSbvLyZVmqieS/QVEmXRjp7MAjoufq1gqEaSGXDkCK+c4XB2HXTx7X85YYOQ==;EndpointSuffix=core.windows.net"
+        connection_string = f"DefaultEndpointsProtocol=https;AccountName={self.azure_creds.account_name};" \
+                            f"AccountKey={self.azure_creds.account_key};" \
+                            f"EndpointSuffix={self.azure_creds.endpoint_suffix}"
         try:
-            blob = BlobClient.from_connection_string(conn_str=connection_string, container_name="aedigital",
+            blob = BlobClient.from_connection_string(conn_str=connection_string,
+                                                     container_name=self.azure_creds.container_name,
                                                      blob_name="cu00000001/202103/20210331")
             print("connected to azure storage successfully!")
         except:
             print("problem in connecting to azure storage")
-        container_name = "aedigital"
+        container_name = self.azure_creds.container_name
         blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         # blob_client = blob_service_client.get_blob_client(container=container_name, blob=download_file_path)
         container_client = blob_service_client.get_container_client(container_name)
@@ -80,4 +84,4 @@ class Azure_File_Downloader:
 
 if __name__ == '__main__':
     file_downloader = Azure_File_Downloader()
-    file_downloader.get_file_from_azure_storage('files/file_azure.txt')
+    file_downloader.get_file_from_azure_storage('cu00000001/*/*/EXTRACT.ACCOUNT', 'files/file_azure.txt')

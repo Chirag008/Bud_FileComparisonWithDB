@@ -1,0 +1,9 @@
+{
+  "azure_connection":
+    {
+       "AccountName" : "sacmfgd02dlxdatapoc2",
+      "AccountKey" : "yjYSUhPn7ucdPoXa43F/bS/wHQqSbvLyZVmqieS/QVEmXRjp7MAjoufq1gqEaSGXDkCK+c4XB2HXTx7X85YYOQ==",
+      "EndpointSuffix" : "core.windows.net",
+      "ContainerName" : "aedigital"
+    }
+}
