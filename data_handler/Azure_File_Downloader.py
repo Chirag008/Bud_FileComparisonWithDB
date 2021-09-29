@@ -48,13 +48,6 @@ class Azure_File_Downloader:
                         break
                 if is_name_matched:
                     all_extract_name_files.append(blob.name)
-            # if azure_file_extract_name in blob.name:
-            #     print("\nDownloading blob to \n\t" + download_file_path)
-            #     with open(download_file_path, "wb") as download_file:
-            #         print(blob.name + '\n')
-            #         blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob)
-            #         download_file.write(blob_client.download_blob().readall())
-            #     break
         if len(all_extract_name_files) == 0:
             print(f'No file found matching the azure file pattern -- {azure_file_extract_name}')
             raise AzureFileNotFoundException(f'No file found matching the azure file pattern -- '
@@ -83,15 +76,6 @@ class Azure_File_Downloader:
         print('Downloaded file successfully !!')
 
     def get_file_content_from_azure_storage(self, azure_file_extract_name):
-        # project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
-        # file_path = os.path.join(project_root, 'files/test_data.txt')
-        # lines = []
-        # with open(file_path) as in_fh:
-        #     line = in_fh.readline()
-        #     while line is not None and line != '':
-        #         lines.append(line.rstrip('\n'))
-        #         line = in_fh.readline()
-        # return lines
         blob_client = self.fetch_file_blob_from_azure_storage(azure_file_extract_name)
         return blob_client.download_blob().readall()
 
