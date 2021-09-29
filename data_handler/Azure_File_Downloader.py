@@ -12,7 +12,8 @@ class AzureFileNotFoundException(Exception):
 
 class Azure_File_Downloader:
     azure_creds = Azure_Creds()
-    def get_file_from_azure_storage(self, azure_file_extract_name, download_file_path):
+
+    def fetch_file_blob_from_azure_storage(self, azure_file_extract_name):
         connection_string = f"DefaultEndpointsProtocol=https;AccountName={self.azure_creds.account_name};" \
                             f"AccountKey={self.azure_creds.account_key};" \
                             f"EndpointSuffix={self.azure_creds.endpoint_suffix}"
@@ -28,9 +29,6 @@ class Azure_File_Downloader:
         # blob_client = blob_service_client.get_blob_client(container=container_name, blob=download_file_path)
         container_client = blob_service_client.get_container_client(container_name)
         blobs_list = container_client.list_blobs()
-
-        project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
-        download_file_path = os.path.join(project_root, download_file_path)
 
         # list to capture all the file path having extract name. So that later we can sort it and pick the latest one
         all_extract_name_files = []
@@ -72,16 +70,32 @@ class Azure_File_Downloader:
         latest_file = all_extract_name_files[0]
         print('-----------------------------------------------------------------')
         print(f'latest file is --  {latest_file}')
+        blob_client = container_client.get_blob_client(latest_file)
+        return blob_client
+
+    def get_file_from_azure_storage(self, azure_file_extract_name, download_file_path):
+        project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
+        download_file_path = os.path.join(project_root, download_file_path)
+        blob_client = self.fetch_file_blob_from_azure_storage(azure_file_extract_name)
         print("\nDownloading blob to \n\t" + download_file_path)
         with open(download_file_path, "wb") as download_file:
-            print(latest_file + '\n')
-            # blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob)
-            blob_client = container_client.get_blob_client(latest_file)
             download_file.write(blob_client.download_blob().readall())
         print('Downloaded file successfully !!')
-        return latest_file
+
+    def get_file_content_from_azure_storage(self, azure_file_extract_name):
+        # project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
+        # file_path = os.path.join(project_root, 'files/test_data.txt')
+        # lines = []
+        # with open(file_path) as in_fh:
+        #     line = in_fh.readline()
+        #     while line is not None and line != '':
+        #         lines.append(line.rstrip('\n'))
+        #         line = in_fh.readline()
+        # return lines
+        blob_client = self.fetch_file_blob_from_azure_storage(azure_file_extract_name)
+        return blob_client.download_blob().readall()
 
 
 if __name__ == '__main__':
     file_downloader = Azure_File_Downloader()
-    file_downloader.get_file_from_azure_storage('cu00000001/*/*/EXTRACT.ACCOUNT', 'files/file_azure.txt')
+    file_downloader.get_file_content_from_azure_storage('cu00000001/*/*/EXTRACT.ACCOUNT')

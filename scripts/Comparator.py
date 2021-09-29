@@ -1,3 +1,6 @@
+import sys
+import threading
+import time
 import traceback
 
 from openpyxl.styles import Font
@@ -31,9 +34,12 @@ class Comparator:
     out_csv = None
     xlsx_fh = None
     azure_file_name_dict = None
+    total_pass = 0
+    total_fail = 0
 
     def __init__(self, file_path, should_download_from_azure, azure_file_extract_name, report_name, table_name,
-                 is_header_available, number_of_records_to_match, order_by_columns, sort_file_by_column_numbers):
+                 is_header_available, number_of_records_to_match, order_by_columns, sort_file_by_column_numbers,
+                 key_column_numbers_in_file, key_column_names_in_db_table):
         self.file_path = file_path
         self.should_download_from_azure = should_download_from_azure
         self.report_name = report_name
@@ -44,6 +50,8 @@ class Comparator:
         self.order_by_columns = order_by_columns
         self.sort_file_by_column_numbers = sort_file_by_column_numbers
         self.azure_file_extract_name = azure_file_extract_name
+        self.key_column_numbers_in_file = key_column_numbers_in_file
+        self.key_column_names_in_db_table = key_column_names_in_db_table
 
     def validate_result(self,
                         scenario_name,
@@ -85,24 +93,36 @@ class Comparator:
             self.cursor = self.cursor.execute(sql_query)
             result = self.cursor.fetchmany(config.BUFFER_NUMBER_OF_DB_ROWS)
 
-            # download the file to specified path from azure storage
-            if self.should_download_from_azure:
-                filename = self.azure_file_downloader.get_file_from_azure_storage(
-                    self.azure_file_extract_name,
-                    self.file_path)
-                self.azure_file_name_dict = {'FILENAME': filename}
-            else:
-                self.azure_file_name_dict = {'FILENAME': self.azure_file_extract_name}
+            db_table_headers = [k for k in result[0].keys()]
+            # adding db table columns as table headers in html report
+            self.reporter.add_db_column_names_as_headers(['FILENAME'] + [k for k in result[0].keys()])
 
+            ##########################################################################################
+            #       commenting this part because we will no longer download the file
+            # download the file to specified path from azure storage
+            # if self.should_download_from_azure:
+            #     filename = self.azure_file_downloader.get_file_from_azure_storage(
+            #         self.azure_file_extract_name,
+            #         self.file_path)
+            #     self.azure_file_name_dict = {'FILENAME': filename}
+            # else:
+            #     self.azure_file_name_dict = {'FILENAME': self.azure_file_extract_name}
+            ##########################################################################################
+
+            self.azure_file_name_dict = {'FILENAME': self.azure_file_extract_name}
+
+            ##########################################################################################
+            # commenting sorting of file because it seems not necessary as of now
             # sort the data file and save it in a temporary location.
-            file_handler = CSV_File_Handler()
-            temp_file_path = self.file_path.split('.txt')[0] + '_sorted_temp.txt'
-            file_handler.sort_and_save_file(self.file_path, temp_file_path,
-                                            columns_to_sort_on=self.order_by_columns if self.is_header_available else
-                                            self.sort_file_by_column_numbers,
-                                            order_ascending=True,
-                                            delimiter='~',
-                                            is_header_in_file=self.is_header_available)
+            # file_handler = CSV_File_Handler()
+            # temp_file_path = self.file_path.split('.txt')[0] + '_sorted_temp.txt'
+            # file_handler.sort_and_save_file(self.file_path, temp_file_path,
+            #                                 columns_to_sort_on=self.order_by_columns if self.is_header_available else
+            #                                 self.sort_file_by_column_numbers,
+            #                                 order_ascending=True,
+            #                                 delimiter='~',
+            #                                 is_header_in_file=self.is_header_available)
+            ##########################################################################################
 
             ########################################################################################
             # (No more required. Now storing in xlsx file. So commenting it)
@@ -121,72 +141,103 @@ class Comparator:
                                              ['FILENAME'] + [k for k in result[0].keys()])
 
             # further operations will be handled on sorted file.
-            self.file_path = temp_file_path
+            # self.file_path = temp_file_path
+
+            start = time.time()
+            content = self.azure_file_downloader.get_file_content_from_azure_storage(self.azure_file_extract_name)
+            end = time.time()
+            print(f'Time taken to search and read file content from azure -- {round(end-start)} seconds')
+            content = content.decode('utf-8')
+            content = content.split('\n')
+            if content[-1].strip() == '':
+                content = content[:-1]
+            # create a hash of content key columns i.e. file key columns
+            content_dict = {}
+            for line in content:
+                tokens = line.split('~')
+                key_col_values = []
+                for col_number in self.key_column_numbers_in_file:
+                    key_col_values.append(tokens[col_number-1])
+                content_dict['-'.join(key_col_values)] = line
 
             # if file header is not available in data file then we will pick the headers from db table
-            if self.is_header_available:
-                self.fr = File_Reader(self.file_path)
-            else:
-                self.fr = File_Reader(self.file_path, [k for k in result[0].keys()])
-            row_dict = self.fr.get_next_row_as_dict()
+            # if self.is_header_available:
+            #     self.fr = File_Reader(self.file_path)
+            # else:
+            #     self.fr = File_Reader(self.file_path, [k for k in result[0].keys()])
+            # row_dict = self.fr.get_next_row_as_dict()
 
             # Check if number of columns in file and database are same in number
             db_col_count = len(list(result[0].keys()))
-            self.validate_result(scenario_name='Validate number of columns same in data file and table',
-                                 exp_result=f'columns in DB table - [{db_col_count}] and data file - [{db_col_count}]',
-                                 actual_result=f'columns in DB table - [{db_col_count}] and data file - '
-                                               f'[{self.fr.num_of_cols}]',
-                                 exit_on_failure=False)
+            # self.validate_result(scenario_name='Validate number of columns same in data file and table',
+            #                      exp_result=f'columns in DB table - [{db_col_count}] and data file - [{db_col_count}]',
+            #                      actual_result=f'columns in DB table - [{db_col_count}] and data file - '
+            #                                    f'[{self.fr.num_of_cols}]',
+            #                      exit_on_failure=False)
 
             # Check if all the columns are same in both data file and DB table (iff header is available in file)
             if self.is_header_available:
                 headers_data_file = sorted([h.upper() for h in self.fr.headers])
                 headers_db_table = sorted([k.upper() for k in result[0].keys()])
-                self.validate_result(scenario_name='Validate column names in data file and db table',
-                                     exp_result=headers_data_file,
-                                     actual_result=headers_db_table,
-                                     exit_on_failure=True)
+                # self.validate_result(scenario_name='Validate column names in data file and db table',
+                #                      exp_result=headers_data_file,
+                #                      actual_result=headers_db_table,
+                #                      exit_on_failure=True)
             number_of_row_checked = 0
+            progress_update_count = int(self.number_of_records_to_match / 100)
+            slider_count = 1
+            print('\nComparison started ... ')
             while True and number_of_row_checked <= self.number_of_records_to_match:
                 # iterate all the rows in result set and check against the file
                 for db_row in result:
                     if number_of_row_checked == self.number_of_records_to_match:
                         number_of_row_checked += 1
                         break
+                    if number_of_row_checked == (progress_update_count * slider_count):
+                        self.update_progress(slider_count)
+                        slider_count += 1
                     db_row = {k: None if v is None else str(v) for k, v in db_row.items()}
                     # remove the 00:00:00 from date if there is any column with date time as yyyy-mm-dd 00:00:00
                     db_row = {k: v.replace('00:00:00', '').strip() if v is not None else v for k, v in db_row.items()}
-                    # writing db row in xlsx file
-                    self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **db_row})
-                    print(f'Checking for row --->  {db_row}')
+
+                    # print(f'Checking for row --->  {db_row}')
                     # check the column by which we sorted the results. If current file row (sorted columns) value
                     # matches then we will check for other columns. otherwise fetch the row until file column < db
                     # column
-                    is_order_by_columns_matched = True
-                    order_by_columns_list = list(self.order_by_columns.keys())
-                    for i, sorted_col in enumerate(order_by_columns_list):
-                        while (db_row[sorted_col] != row_dict[sorted_col]) \
-                                and row_dict[sorted_col] < db_row[sorted_col]:
-                            row_dict = self.fr.get_next_row_as_dict()
-                            # now new row should match all the previous ordered columns else we should break from here
-                            previous_cols_matched = True
-                            for col in range(0, i):
-                                if db_row[order_by_columns_list[col]] != row_dict[order_by_columns_list[col]]:
-                                    is_order_by_columns_matched = False
-                                    previous_cols_matched = False
-                                    break
-                            if not previous_cols_matched:
-                                break
+                    is_order_by_columns_matched = False
+                    # order_by_columns_list = list(self.order_by_columns.keys())
+                    # for i, sorted_col in enumerate(order_by_columns_list):
+                    #     while (db_row[sorted_col] != row_dict[sorted_col]) \
+                    #             and row_dict[sorted_col] < db_row[sorted_col]:
+                    #         row_dict = self.fr.get_next_row_as_dict()
+                    #         # now new row should match all the previous ordered columns else we should break from here
+                    #         previous_cols_matched = True
+                    #         for col in range(0, i):
+                    #             if db_row[order_by_columns_list[col]] != row_dict[order_by_columns_list[col]]:
+                    #                 is_order_by_columns_matched = False
+                    #                 previous_cols_matched = False
+                    #                 break
+                    #         if not previous_cols_matched:
+                    #             break
+                    #
+                    #     if db_row[sorted_col] != row_dict[sorted_col]:
+                    #         is_order_by_columns_matched = False
+                    #         break
 
-                        if db_row[sorted_col] != row_dict[sorted_col]:
-                            is_order_by_columns_matched = False
-                            break
+                    # key_to_match = db_row['PARENTACCOUNT'] + '-' + db_row['ORDINAL']
+                    db_key_col_values = []
+                    for col in self.key_column_names_in_db_table:
+                        db_key_col_values.append(db_row[col])
+                    key_to_match = '-'.join(db_key_col_values)
+                    if key_to_match in content_dict.keys():
+                        is_order_by_columns_matched = True
 
                     if not is_order_by_columns_matched:
-                        print('Order by columns value not matched in file!')
-                        self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
-                                             exp_result=f'database row should be present in file data - {db_row}',
-                                             actual_result=f'database row not found in file data')
+                        self.total_fail += 1
+                        # print('Order by columns value not matched in file!')
+                        # self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
+                        #                      exp_result=f'database row should be present in file data - {db_row}',
+                        #                      actual_result=f'database row not found in file data')
                         ########################################################################################
                         # (No more required. Now storing in xlsx file. So commenting it)
                         # writing db unmatched row in csv file
@@ -194,13 +245,36 @@ class Comparator:
                         # self.out_csv.write(','.join(db_row_values) + '\n')
                         ########################################################################################
                         # writing in xlsx file that -- data not found for this row in file
-                        self.xlsx_fh.write_row_in_xlsx_file([self.azure_file_name_dict['FILENAME'],
-                                                             'DB row not found in file !'], Font(color='FF0000'))
-                        self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
+
+                        if self.total_fail <= config.MAX_NUMBER_OF_FAILURE_CASES_TO_REPORT:
+                            threading.Thread(target=self.xlsx_fh.write_db_and_file_row_in_xlsx_file,
+                                             args=({**self.azure_file_name_dict, **db_row},
+                                                   [self.azure_file_name_dict['FILENAME'], 'DB row not found in file !']
+                                                   )).start()
+                            # writing db row in xlsx file
+                            # self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **db_row})
+                            # threading.Thread(target=self.xlsx_fh.write_row_in_xlsx_file,
+                            #                  args=([self.azure_file_name_dict['FILENAME'],
+                            #                         'DB row not found in file !'], Font(color='FF0000'))).start()
+                            # self.xlsx_fh.write_row_in_xlsx_file([self.azure_file_name_dict['FILENAME'],
+                            #                                      'DB row not found in file !'], Font(color='FF0000'))
+                            # threading.Thread(target=self.xlsx_fh.write_blank_colored_row_in_xlsx_file, args=()).start()
+
+                        threading.Thread(target=self.reporter.add_scenario_result_as_table_formatted_data,
+                                         args=('Comparing DB row ',
+                                               {**self.azure_file_name_dict, **db_row},
+                                               [self.azure_file_name_dict['FILENAME'],
+                                                'DB row not found in file !'],
+                                               'fail')).start()
                     else:
                         current_row_matched = True
                         unmatched_values = {}
-                        for header in self.fr.headers:
+                        row_dict = {}
+                        tokens = content_dict[key_to_match].split('~')
+                        for token, header in zip(tokens, db_table_headers):
+                            row_dict[header] = token
+
+                        for header in db_table_headers:
                             if header in self.columns_to_exclude_in_comparison:
                                 continue
                             if row_dict[header] == db_row[header]:
@@ -211,26 +285,57 @@ class Comparator:
                                 current_row_matched = False
                                 unmatched_values[header] = f'{db_row[header]} <==> {row_dict[header]}'
 
+                        # content_dict.pop(key_to_match)
+
                         if current_row_matched:
-                            self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
-                                                 exp_result=f'database row should be present in file data - {db_row}',
-                                                 actual_result=f'database row present in file data - {row_dict}',
-                                                 status='pass')
-                            # writing the file row in xlsx file
-                            self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **row_dict})
-                            self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
+                            # self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
+                            #                      exp_result=f'database row should be present in file data - {db_row}',
+                            #                      actual_result=f'database row present in file data - {row_dict}',
+                            #                      status='pass')
+                            self.total_pass += 1
+
+                            threading.Thread(target=self.reporter.add_scenario_result_as_table_formatted_data,
+                                             args=('Comparing DB row ',
+                                                   {**self.azure_file_name_dict, **db_row},
+                                                   {**self.azure_file_name_dict, **row_dict},
+                                                   'pass')).start()
+                            if self.total_pass <= config.MAX_NUMBER_OF_SUCCESS_CASES_TO_REPORT:
+                                threading.Thread(target=self.xlsx_fh.write_db_and_file_row_in_xlsx_file,
+                                                 args=(
+                                                     {**self.azure_file_name_dict, **db_row},
+                                                     {**self.azure_file_name_dict, **row_dict},
+                                                 )).start()
+                                # writing the file row in xlsx file
+                                # threading.Thread(target=self.xlsx_fh.write_dict_as_row_in_xlsx_file,
+                                #                  args=({**self.azure_file_name_dict, **row_dict}, [])).start()
+                                # threading.Thread(target=self.xlsx_fh.write_blank_colored_row_in_xlsx_file, args=())
                         else:
-                            self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
-                                                 exp_result=f'database row should be present in file data - {db_row}',
-                                                 actual_result=f'database row not matched with file data - {row_dict}',
-                                                 status='fail',
-                                                 comment=str(unmatched_values))
-                            # writing the file row in xlsx file
-                            self.xlsx_fh.write_dict_as_row_in_xlsx_file({**self.azure_file_name_dict, **row_dict},
-                                                                        unmatched_col_names_as_list=
-                                                                        [k for k in unmatched_values.keys()])
-                            self.xlsx_fh.write_blank_colored_row_in_xlsx_file()
-                        row_dict = self.fr.get_next_row_as_dict()
+                            # self.validate_result(scenario_name=f'Validating file data Row {number_of_row_checked}',
+                            #                      exp_result=f'database row should be present in file data - {db_row}',
+                            #                      actual_result=f'database row not matched with file data - {row_dict}',
+                            #                      status='fail',
+                            #                      comment=str(unmatched_values))
+                            self.total_fail += 1
+                            threading.Thread(target=self.reporter.add_scenario_result_as_table_formatted_data,
+                                             args=('Comparing DB row ',
+                                                   {**self.azure_file_name_dict, **db_row},
+                                                   {**self.azure_file_name_dict, **row_dict},
+                                                   'fail', '',
+                                                   [k for k in unmatched_values.keys()])).start()
+
+                            if self.total_fail <= config.MAX_NUMBER_OF_FAILURE_CASES_TO_REPORT:
+                                threading.Thread(target=self.xlsx_fh.write_db_and_file_row_in_xlsx_file,
+                                                 args=(
+                                                     {**self.azure_file_name_dict, **db_row},
+                                                     {**self.azure_file_name_dict, **row_dict},
+                                                     [k for k in unmatched_values.keys()]
+                                                 )).start()
+                                # writing the file row in xlsx file
+                                # threading.Thread(target=self.xlsx_fh.write_dict_as_row_in_xlsx_file,
+                                #                  args=({**self.azure_file_name_dict, **row_dict},
+                                #                        [k for k in unmatched_values.keys()])).start()
+                                # threading.Thread(target=self.xlsx_fh.write_blank_colored_row_in_xlsx_file, args=()).start()
+                        # row_dict = self.fr.get_next_row_as_dict()
                     number_of_row_checked += 1
 
                 # fetch next chuck of data from database
@@ -281,7 +386,8 @@ class Comparator:
             #         result = result_previous_rows + result_next_rows
             #     data_row_index += 1
 
-            print('processed data file completely.')
+            self.update_progress(100)
+            print('\nprocessed data file completely.')
             self.teardown()
         except Exception as e:
             if isinstance(e, ValidationFailedException):
@@ -330,3 +436,7 @@ class Comparator:
         if self.xlsx_fh is not None:
             self.xlsx_fh.save_xlsx_file()
             del self.xlsx_fh
+
+    def update_progress(self, progress):
+        sys.stdout.write('\r[{0}] {1}%'.format('#' * progress, progress))
+        sys.stdout.flush()

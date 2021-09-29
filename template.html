@@ -25,9 +25,17 @@
         font-weight: bold;
       }
 
+      td.mismatch{
+          background-color: goldenrod;
+      }
+
       tr {
       	text-align: center;
         font-family: verdana,serif;
+      }
+
+      tr.blankrow{
+          background-color: #9FA05F;
       }
 
       td {
@@ -158,12 +166,11 @@
 
         <br><br><br>
 
-    <table style="width:100%;table-layout: fixed" id="report-data">
+    <table style="width:100%;" id="report-data">
       <tr class="table-header">
         <th style="width:5%">Scenario No.</th>
       	<th style="width:20%">Test Scenario</th>
-      	<th style="width:30%">Expected Output</th>
-        <th style="width:30%">Actual Output</th>
+      	<$$DB_TABLE_HEADERS$$>
         <th style="width:5%">Status</th>
         <th style="width:10%">Comments</th>
      </tr>

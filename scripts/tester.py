@@ -1,5 +1,7 @@
 import json
 import sys
+import time
+
 from scripts.Comparator import Comparator
 
 
@@ -12,6 +14,8 @@ def start_execution():
             table = execution_info['table_name']
             order_by_columns = execution_info['order_by_columns']
             sort_file_by_column_numbers = execution_info['sort_file_by_column_numbers']
+            key_column_numbers_in_file = execution_info['key_column_number_in_file']
+            key_column_names_in_db_table = execution_info['key_column_names_in_db_table']
 
             # capture the information whether header is available with file or not
             is_header_available = execution_info.get('is_header_available_in_file')
@@ -64,14 +68,22 @@ def start_execution():
                               is_header_available=is_header_available,
                               number_of_records_to_match=number_of_records_to_match,
                               order_by_columns=order_by_columns,
-                              sort_file_by_column_numbers=sort_file_by_column_numbers)
+                              sort_file_by_column_numbers=sort_file_by_column_numbers,
+                              key_column_numbers_in_file=key_column_numbers_in_file,
+                              key_column_names_in_db_table=key_column_names_in_db_table)
+            start_time = time.time()
             comp.start_comparison()
             # free up memory used by comparator object
             del comp
+            end_time = time.time()
             print('=========================  Comparison Done  ========================')
+            print(f'=======================  Comparison for this file took -- {round(end_time-start_time)} seconds !!')
 
 
 if __name__ == '__main__':
+    start = time.time()
     start_execution()
     print('========================= Exiting the Comparator Program  ========================')
+    end = time.time()
+    print(f'program finished in --- {round(end-start, 2)} seconds')
     quit(0)

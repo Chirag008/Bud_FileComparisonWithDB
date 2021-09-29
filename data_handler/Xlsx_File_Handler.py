@@ -38,7 +38,7 @@ class Xlsx_File_Handler:
         file_path = os.path.join(file_dir, file_name)
         return file_path
 
-    def write_row_in_xlsx_file(self, list_of_col_values_for_a_row: list, font=None):
+    def write_row_in_xlsx_file(self, list_of_col_values_for_a_row: list, font=Font(color='FF0000')):
         for col_num, val in enumerate(list_of_col_values_for_a_row, start=1):
             self.xlsx_sheet.cell(row=self.row_index, column=col_num).value = val
         if font:
@@ -47,7 +47,7 @@ class Xlsx_File_Handler:
         self.row_index += 1
 
     def write_blank_colored_row_in_xlsx_file(self):
-        for col_number in range(1, len(self.header_to_col_number_map)+1):
+        for col_number in range(1, len(self.header_to_col_number_map) + 1):
             self.xlsx_sheet.cell(row=self.row_index, column=col_number).fill = self.blank_row_fill_style
         self.row_index += 1
 
@@ -59,6 +59,15 @@ class Xlsx_File_Handler:
                 self.xlsx_sheet.cell(row=self.row_index,
                                      column=self.header_to_col_number_map[col]).fill = self.unmatched_data_fill_style
         self.row_index += 1
+
+    def write_db_and_file_row_in_xlsx_file(self, db_row_as_dictionary: dict, file_row_as_dictionary_or_list,
+                                           unmatched_col_names_as_list: list = None):
+        self.write_dict_as_row_in_xlsx_file(db_row_as_dictionary)
+        if type(file_row_as_dictionary_or_list) == list:
+            self.write_row_in_xlsx_file(file_row_as_dictionary_or_list)
+        else:
+            self.write_dict_as_row_in_xlsx_file(file_row_as_dictionary_or_list, unmatched_col_names_as_list)
+        self.write_blank_colored_row_in_xlsx_file()
 
     def save_xlsx_file(self):
         # check if workbook is opened by some other process. Close the workbook in that case
