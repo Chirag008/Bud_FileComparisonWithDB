@@ -6,6 +6,7 @@ from scripts.Comparator import Comparator
 
 
 def start_execution():
+    count_files_processed = 0
     with open('files_to_test.json') as in_fh:
         files_to_test = json.load(in_fh)
         for execution_info in files_to_test['files']:
@@ -77,13 +78,16 @@ def start_execution():
             del comp
             end_time = time.time()
             print('=========================  Comparison Done  ========================')
-            print(f'=======================  Comparison for this file took -- {round(end_time-start_time)} seconds !!')
+            print(
+                f'=======================  Comparison for this file took -- {round(end_time - start_time)} seconds !!')
+            count_files_processed += 1
+    return count_files_processed
 
 
 if __name__ == '__main__':
     start = time.time()
-    start_execution()
+    count_files_processed = start_execution()
     print('========================= Exiting the Comparator Program  ========================')
     end = time.time()
-    print(f'program finished in --- {round(end-start, 2)} seconds')
-    quit(0)
+    print(f'program finished in --- {round(end - start, 2)} seconds')
+    exit(count_files_processed)

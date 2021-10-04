@@ -28,43 +28,46 @@ class Azure_File_Downloader:
         blob_service_client = BlobServiceClient.from_connection_string(connection_string)
         # blob_client = blob_service_client.get_blob_client(container=container_name, blob=download_file_path)
         container_client = blob_service_client.get_container_client(container_name)
-        blobs_list = container_client.list_blobs()
-
-        # list to capture all the file path having extract name. So that later we can sort it and pick the latest one
-        all_extract_name_files = []
-        azure_file_extract_name_tokens = azure_file_extract_name.split('/')
-        for blob in blobs_list:
-            print(blob.name)
-            is_name_matched = True
-            blob_name_tokens = blob.name.split('/')
-            if len(blob_name_tokens) == len(azure_file_extract_name_tokens):
-                for file_name_token, blob_name_token in zip(azure_file_extract_name_tokens, blob_name_tokens):
-                    if file_name_token == '*':
-                        continue
-                    elif file_name_token == blob_name_token:
-                        continue
-                    else:
-                        is_name_matched = False
-                        break
-                if is_name_matched:
-                    all_extract_name_files.append(blob.name)
-        if len(all_extract_name_files) == 0:
-            print(f'No file found matching the azure file pattern -- {azure_file_extract_name}')
-            raise AzureFileNotFoundException(f'No file found matching the azure file pattern -- '
-                                             f'{azure_file_extract_name}')
-        print('\n------------------------------------------------------------------\n')
-        print(f'All extract files found --')
-        print(*all_extract_name_files, sep='\n')
-        print('\n------------------------------------------------------------------')
-        # sort the list and pick the latest one
-        all_extract_name_files = sorted(all_extract_name_files, reverse=True)
-        print(f'sorted all extract files --')
-        print(*all_extract_name_files, sep='\n')
-        latest_file = all_extract_name_files[0]
-        print('-----------------------------------------------------------------')
-        print(f'latest file is --  {latest_file}')
-        blob_client = container_client.get_blob_client(latest_file)
+        blob_client = container_client.get_blob_client(azure_file_extract_name)
         return blob_client
+
+        # blobs_list = container_client.list_blobs()
+
+        # # list to capture all the file path having extract name. So that later we can sort it and pick the latest one
+        # all_extract_name_files = []
+        # azure_file_extract_name_tokens = azure_file_extract_name.split('/')
+        # for blob in blobs_list:
+        #     print(blob.name)
+        #     is_name_matched = True
+        #     blob_name_tokens = blob.name.split('/')
+        #     if len(blob_name_tokens) == len(azure_file_extract_name_tokens):
+        #         for file_name_token, blob_name_token in zip(azure_file_extract_name_tokens, blob_name_tokens):
+        #             if file_name_token == '*':
+        #                 continue
+        #             elif file_name_token == blob_name_token:
+        #                 continue
+        #             else:
+        #                 is_name_matched = False
+        #                 break
+        #         if is_name_matched:
+        #             all_extract_name_files.append(blob.name)
+        # if len(all_extract_name_files) == 0:
+        #     print(f'No file found matching the azure file pattern -- {azure_file_extract_name}')
+        #     raise AzureFileNotFoundException(f'No file found matching the azure file pattern -- '
+        #                                      f'{azure_file_extract_name}')
+        # print('\n------------------------------------------------------------------\n')
+        # print(f'All extract files found --')
+        # print(*all_extract_name_files, sep='\n')
+        # print('\n------------------------------------------------------------------')
+        # # sort the list and pick the latest one
+        # all_extract_name_files = sorted(all_extract_name_files, reverse=True)
+        # print(f'sorted all extract files --')
+        # print(*all_extract_name_files, sep='\n')
+        # latest_file = all_extract_name_files[0]
+        # print('-----------------------------------------------------------------')
+        # print(f'latest file is --  {latest_file}')
+        # blob_client = container_client.get_blob_client(latest_file)
+        # return blob_client
 
     def get_file_from_azure_storage(self, azure_file_extract_name, download_file_path):
         project_root = Path(os.path.abspath(os.path.dirname(__file__))).parent
@@ -82,4 +85,4 @@ class Azure_File_Downloader:
 
 if __name__ == '__main__':
     file_downloader = Azure_File_Downloader()
-    file_downloader.get_file_content_from_azure_storage('cu00000001/*/*/EXTRACT.ACCOUNT')
+    file_downloader.get_file_content_from_azure_storage('cu00000001/202103/20210331/EXTRACT.ACCOUNT')
